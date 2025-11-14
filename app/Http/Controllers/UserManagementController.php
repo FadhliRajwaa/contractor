@@ -25,7 +25,16 @@ class UserManagementController extends Controller
             ->latest()
             ->paginate(15);
 
-        $roles = Role::all();
+        // Filter roles based on current user
+        if (auth()->user()->hasRole('superadmin')) {
+            // Superadmin sees ALL roles
+            $roles = Role::all();
+        } elseif (auth()->user()->hasRole('administrator')) {
+            // Administrator cannot see/create superadmin role
+            $roles = Role::whereNotIn('name', ['superadmin'])->get();
+        } else {
+            $roles = collect(); // Empty for others
+        }
 
         return view('users.index', compact('users', 'roles'));
     }
@@ -62,11 +71,21 @@ class UserManagementController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        // Define allowed roles based on current user role
+        $allowedRoles = [];
+        if (auth()->user()->hasRole('superadmin')) {
+            // Superadmin can create ANY role
+            $allowedRoles = ['superadmin', 'administrator', 'admin_kontraktor', 'user_kontraktor', 'customer'];
+        } elseif (auth()->user()->hasRole('administrator')) {
+            // Administrator CANNOT create superadmin
+            $allowedRoles = ['administrator', 'admin_kontraktor', 'user_kontraktor', 'customer'];
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['nullable', 'string', 'min:8'],
-            'role' => ['required', 'exists:roles,name'],
+            'role' => ['required', Rule::in($allowedRoles)],
             'notes' => ['nullable', 'string'],
             'is_active' => ['boolean'],
         ]);

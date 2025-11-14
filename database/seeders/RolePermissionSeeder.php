@@ -84,9 +84,9 @@ class RolePermissionSeeder extends Seeder
             'create customers',
             'edit customers',
             'delete customers',
-            'create users', // bisa buat user kontraktor
-            'edit users',
-            'view users',
+            'create users', // bisa buat user kontraktor & customer
+            'edit users',   // bisa edit user kontraktor & customer
+            'view users',   // bisa lihat user kontraktor & customer
             'view projects',
             'create projects',
             'edit projects',
