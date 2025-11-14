@@ -14,16 +14,8 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
     exit('Vendor autoload not found. Please run composer install.');
 }
 
-// Create writable bootstrap cache directory in /tmp for serverless
-$bootstrapCacheDir = '/tmp/bootstrap/cache';
-if (!is_dir($bootstrapCacheDir)) {
-    mkdir($bootstrapCacheDir, 0755, true);
-}
-
-// Set Laravel bootstrap cache path
-if (!defined('LARAVEL_BOOTSTRAP_CACHE')) {
-    define('LARAVEL_BOOTSTRAP_CACHE', $bootstrapCacheDir);
-}
+// Setup Vercel serverless environment BEFORE Laravel bootstrap
+require_once __DIR__.'/../bootstrap/vercel.php';
 
 // Bootstrap Laravel application
 $app = require_once __DIR__.'/../bootstrap/app.php';
