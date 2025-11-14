@@ -1,0 +1,32 @@
+{
+    "version": 2,
+    "functions": {
+        "api/index.php": {
+            "runtime": "vercel-php@0.7.4"
+        }
+    },
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/api/index.php"
+        }
+    ],
+    "env": {
+        "APP_ENV": "production",
+        "APP_DEBUG": "false",
+        "APP_URL": "https://contractor-app.vercel.app",
+        "LOG_CHANNEL": "stderr",
+        "LOG_STDERR_FORMATTER": "Monolog\\Formatter\\JsonFormatter",
+        "SESSION_DRIVER": "cookie",
+        "VIEW_COMPILED_PATH": "/tmp",
+        "CACHE_DRIVER": "array",
+        "FILESYSTEM_DISK": "local",
+        "DB_CONNECTION": "aiven"
+    },
+    "build": {
+        "env": {
+            "COMPOSER_MIRROR_PATH_REPOS": "1",
+            "COMPOSER_CACHE_DIR": "/tmp"
+        }
+    }
+}
