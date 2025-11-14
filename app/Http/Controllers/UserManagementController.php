@@ -12,6 +12,60 @@ use Spatie\Permission\Models\Role;
 class UserManagementController extends Controller
 {
     /**
+     * Role Hierarchy Definition (highest to lowest)
+     * Lower numbers = higher privilege
+     */
+    private const ROLE_HIERARCHY = [
+        'superadmin' => 1,
+        'administrator' => 2,
+        'admin_kontraktor' => 3,
+        'user_kontraktor' => 4,
+        'customer' => 5,
+    ];
+
+    /**
+     * Check if current user can manage target user based on role hierarchy
+     */
+    private function canManageUser(User $targetUser): bool
+    {
+        $currentUserRole = auth()->user()->roles->first()->name ?? 'customer';
+        $targetUserRole = $targetUser->roles->first()->name ?? 'customer';
+        
+        $currentLevel = self::ROLE_HIERARCHY[$currentUserRole] ?? 999;
+        $targetLevel = self::ROLE_HIERARCHY[$targetUserRole] ?? 999;
+        
+        // Can only manage users with LOWER privilege (higher number)
+        return $currentLevel < $targetLevel;
+    }
+
+    /**
+     * Get roles that current user is allowed to see/manage
+     * Only Superadmin can manage same-level roles. Others can only manage lower levels.
+     */
+    private function getAllowedRoles(): array
+    {
+        $currentUserRole = auth()->user()->roles->first()->name ?? 'customer';
+        $currentLevel = self::ROLE_HIERARCHY[$currentUserRole] ?? 999;
+        
+        // Return roles with lower privilege only
+        // Exception: Superadmin can manage ALL including other Superadmins
+        $allowedRoles = [];
+        foreach (self::ROLE_HIERARCHY as $roleName => $level) {
+            if ($currentUserRole === 'superadmin') {
+                // Superadmin can manage ALL roles
+                $allowedRoles[] = $roleName;
+            } else {
+                // Others can only manage LOWER roles (not same level)
+                if ($level > $currentLevel) {
+                    $allowedRoles[] = $roleName;
+                }
+            }
+        }
+        
+        return $allowedRoles;
+    }
+
+    /**
      * Display a listing of users (SUPERADMIN & ADMINISTRATOR only).
      */
     public function index()
@@ -21,19 +75,33 @@ class UserManagementController extends Controller
             abort(403, 'Unauthorized');
         }
         
-        $users = User::with('roles')
-            ->latest()
-            ->paginate(15);
-
-        // Filter roles based on current user
-        if (auth()->user()->hasRole('superadmin')) {
-            // Superadmin sees ALL roles
+        // Get current user role level
+        $currentUserRole = auth()->user()->roles->first()->name ?? 'customer';
+        $currentLevel = self::ROLE_HIERARCHY[$currentUserRole] ?? 999;
+        
+        // Filter users based on role hierarchy
+        if ($currentUserRole === 'superadmin') {
+            // Superadmin sees ALL users
+            $users = User::with('roles')->latest()->paginate(15);
             $roles = Role::all();
-        } elseif (auth()->user()->hasRole('administrator')) {
-            // Administrator cannot see/create superadmin role
-            $roles = Role::whereNotIn('name', ['superadmin'])->get();
         } else {
-            $roles = collect(); // Empty for others
+            // Other roles only see users with LOWER privilege (not same level)
+            $allowedRoles = $this->getAllowedRoles();
+            
+            if (empty($allowedRoles)) {
+                // If no allowed roles, show empty list
+                $users = User::with('roles')->whereRaw('1 = 0')->paginate(15);
+            } else {
+                $users = User::with('roles')
+                    ->whereHas('roles', function($query) use ($allowedRoles) {
+                        $query->whereIn('name', $allowedRoles);
+                    })
+                    ->latest()
+                    ->paginate(15);
+            }
+            
+            // For dropdown, show only roles that can be managed (lower roles)
+            $roles = Role::whereIn('name', $allowedRoles)->get();
         }
 
         return view('users.index', compact('users', 'roles'));
@@ -71,15 +139,8 @@ class UserManagementController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        // Define allowed roles based on current user role
-        $allowedRoles = [];
-        if (auth()->user()->hasRole('superadmin')) {
-            // Superadmin can create ANY role
-            $allowedRoles = ['superadmin', 'administrator', 'admin_kontraktor', 'user_kontraktor', 'customer'];
-        } elseif (auth()->user()->hasRole('administrator')) {
-            // Administrator CANNOT create superadmin
-            $allowedRoles = ['administrator', 'admin_kontraktor', 'user_kontraktor', 'customer'];
-        }
+        // Get allowed roles based on hierarchy (can only create lower roles)
+        $allowedRoles = $this->getAllowedRoles();
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -150,6 +211,11 @@ class UserManagementController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        // Check if current user can manage target user
+        if (!$this->canManageUser($user)) {
+            abort(403, 'Anda tidak dapat mengedit user dengan role yang sama atau lebih tinggi dari Anda!');
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
@@ -191,6 +257,13 @@ class UserManagementController extends Controller
                 ->with('error', 'Anda tidak dapat menghapus akun Anda sendiri!');
         }
 
+        // Check if current user can manage target user
+        if (!$this->canManageUser($user)) {
+            return redirect()
+                ->route('users.index')
+                ->with('error', '❌ Anda tidak dapat menghapus user dengan role yang sama atau lebih tinggi dari Anda!');
+        }
+
         $user->delete();
 
         return redirect()
@@ -203,6 +276,13 @@ class UserManagementController extends Controller
      */
     public function toggleStatus(User $user)
     {
+        // Check if current user can manage target user
+        if (!$this->canManageUser($user)) {
+            return redirect()
+                ->route('users.index')
+                ->with('error', '❌ Anda tidak dapat mengubah status user dengan role yang sama atau lebih tinggi dari Anda!');
+        }
+
         $user->update(['is_active' => !$user->is_active]);
 
         $status = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';
@@ -217,6 +297,13 @@ class UserManagementController extends Controller
      */
     public function resetPassword(User $user)
     {
+        // Check if current user can manage target user
+        if (!$this->canManageUser($user)) {
+            return redirect()
+                ->route('users.index')
+                ->with('error', '❌ Anda tidak dapat reset password user dengan role yang sama atau lebih tinggi dari Anda!');
+        }
+
         $newPassword = Str::random(12);
         $user->update(['password' => Hash::make($newPassword)]);
 
