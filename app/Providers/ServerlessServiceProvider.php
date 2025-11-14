@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Foundation\PackageManifest;
 
 class ServerlessServiceProvider extends ServiceProvider
 {
@@ -12,17 +11,11 @@ class ServerlessServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Override PackageManifest for serverless environments
+        // Set storage path for serverless
         if ($this->isServerlessEnvironment()) {
-            $this->app->singleton(PackageManifest::class, function ($app) {
-                $manifest = new PackageManifest(
-                    $app->make('files'),
-                    $app->basePath(),
-                    '/tmp/bootstrap/cache/packages.php'
-                );
-                
-                return $manifest;
-            });
+            // Override storage path using environment variable
+            putenv('LARAVEL_STORAGE_PATH=/tmp/storage');
+            $_ENV['LARAVEL_STORAGE_PATH'] = '/tmp/storage';
         }
     }
 
@@ -44,7 +37,7 @@ class ServerlessServiceProvider extends ServiceProvider
     {
         return isset($_ENV['VERCEL']) || 
                isset($_ENV['AWS_LAMBDA_FUNCTION_NAME']) ||
-               !is_writable($this->app->bootstrapPath('cache'));
+               $this->app->environment('production');
     }
 
     /**
@@ -53,13 +46,13 @@ class ServerlessServiceProvider extends ServiceProvider
     private function createServerlessDirectories(): void
     {
         $directories = [
-            '/tmp/bootstrap',
-            '/tmp/bootstrap/cache',
             '/tmp/storage',
+            '/tmp/storage/app',
             '/tmp/storage/framework',
             '/tmp/storage/framework/cache',
             '/tmp/storage/framework/sessions',
             '/tmp/storage/framework/views',
+            '/tmp/storage/logs',
         ];
 
         foreach ($directories as $directory) {
