@@ -186,7 +186,7 @@
         <div id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden">
             <div class="flex flex-col h-full">
                 <!-- Logo -->
-                <div class="flex items-center justify-center h-16 px-6 bg-gradient-to-br from-brand-500 via-brand-600 to-brand-700 relative overflow-hidden">
+                <div class="flex items-center justify-between h-16 px-6 bg-gradient-to-br from-brand-500 via-brand-600 to-brand-700 relative overflow-hidden flex-shrink-0">
                     <!-- Background Pattern -->
                     <div class="absolute inset-0 opacity-10">
                         <div class="absolute top-0 -right-4 w-32 h-32 bg-white rounded-full"></div>
@@ -200,10 +200,19 @@
                         </div>
                         <h1 class="text-xl font-bold text-white tracking-wide">ContractorApp</h1>
                     </div>
+                    <!-- Close Button for Mobile -->
+                    <button 
+                        onclick="toggleSidebar()" 
+                        class="relative lg:hidden text-white hover:bg-white/20 rounded-lg p-1.5 transition-colors duration-200"
+                    >
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
                 
-                <!-- Mobile Navigation (same as desktop) -->
-                <nav class="flex-1 overflow-y-auto py-6 px-3">
+                <!-- Mobile Navigation -->
+                <nav class="flex-1 overflow-y-auto py-4 px-3">
                     <div class="space-y-2">
                         <!-- Dashboard -->
                         <a href="{{ route('dashboard') }}" class="group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-105 {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-brand-50 to-brand-100 text-brand-700 shadow-md border-l-4 border-brand-500' : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:shadow-sm' }}">
@@ -231,72 +240,61 @@
                             @endif
                         </a>
                         @endrole
-                        
-                        <!-- Coming Soon Section for Mobile -->
-                        <div class="pt-6 mt-6 border-t border-gray-100 relative">
-                            <div class="flex items-center mb-4">
-                                <div class="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent flex-1"></div>
-                                <p class="px-3 text-xs font-bold text-gray-400 uppercase tracking-wider bg-white">
-                                    Coming Soon
-                                </p>
-                                <div class="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent flex-1"></div>
+                    </div>
+                </nav>
+                
+                <!-- Mobile User Section with Logout -->
+                <div class="flex-shrink-0 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                    <!-- User Info -->
+                    <div class="px-3 pt-3 pb-2">
+                        <div class="flex items-center p-2 rounded-xl bg-white shadow-sm">
+                            <div class="relative flex-shrink-0">
+                                <img 
+                                    src="{{ auth()->user()->avatar_url }}" 
+                                    alt="{{ auth()->user()->name }}"
+                                    class="h-10 w-10 rounded-lg object-cover border-2 border-white shadow-md"
+                                >
+                                <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
                             </div>
-                            <div class="space-y-2">
-                                <div class="group flex items-center px-4 py-3 text-sm font-medium rounded-xl cursor-not-allowed opacity-60 hover:opacity-75 transition-all duration-300">
-                                    <div class="flex items-center justify-center w-8 h-8 mr-3 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                    </div>
-                                    <span class="font-semibold text-gray-500">Projects</span>
-                                    <div class="ml-auto flex items-center space-x-2">
-                                        <span class="text-xs bg-gradient-to-r from-orange-400 to-pink-400 text-white px-3 py-1 rounded-full font-bold shadow-sm">
-                                            Soon
-                                        </span>
-                                        <div class="w-1 h-1 bg-orange-400 rounded-full animate-ping"></div>
-                                    </div>
-                                </div>
-                                <div class="group flex items-center px-4 py-3 text-sm font-medium rounded-xl cursor-not-allowed opacity-60 hover:opacity-75 transition-all duration-300">
-                                    <div class="flex items-center justify-center w-8 h-8 mr-3 rounded-lg bg-gradient-to-br from-green-100 to-green-200 text-green-600">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
-                                    </div>
-                                    <span class="font-semibold text-gray-500">Finance</span>
-                                    <div class="ml-auto flex items-center space-x-2">
-                                        <span class="text-xs bg-gradient-to-r from-purple-400 to-indigo-400 text-white px-3 py-1 rounded-full font-bold shadow-sm">
-                                            Soon
-                                        </span>
-                                        <div class="w-1 h-1 bg-purple-400 rounded-full animate-ping"></div>
-                                    </div>
+                            <div class="ml-3 flex-1 min-w-0 overflow-hidden">
+                                <p class="text-sm font-bold text-gray-800 truncate">
+                                    {{ auth()->user()->name }}
+                                </p>
+                                <div class="flex items-center mt-0.5">
+                                    <div class="w-1.5 h-1.5 bg-brand-500 rounded-full mr-2 animate-pulse flex-shrink-0"></div>
+                                    <p class="text-xs font-medium text-gray-500 truncate">
+                                        @php
+                                            $roleLabels = [
+                                                'superadmin' => 'Superadmin',
+                                                'administrator' => 'Administrator',
+                                                'admin_kontraktor' => 'Admin Kontraktor',
+                                                'user_kontraktor' => 'User Kontraktor',
+                                                'customer' => 'Customer'
+                                            ];
+                                            $roleName = auth()->user()->roles->first()->name ?? 'User';
+                                            $roleLabel = $roleLabels[$roleName] ?? ucfirst($roleName);
+                                        @endphp
+                                        {{ Str::limit($roleLabel, 18) }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </nav>
-                
-                <!-- Mobile User Section -->
-                <div class="flex-shrink-0 border-t border-gray-100 p-3 bg-gradient-to-r from-gray-50 to-white">
-                    <div class="flex items-center p-2 rounded-xl hover:bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group">
-                        <div class="relative flex-shrink-0">
-                            <img 
-                                src="{{ auth()->user()->avatar_url }}" 
-                                alt="{{ auth()->user()->name }}"
-                                class="h-10 w-10 rounded-lg object-cover border-2 border-white shadow-md group-hover:border-brand-200 transition-all duration-300"
+                    
+                    <!-- Logout Button -->
+                    <div class="px-3 pb-3">
+                        <form method="POST" action="{{ route('logout') }}" class="w-full">
+                            @csrf
+                            <button 
+                                type="submit"
+                                class="w-full flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-red-500 to-red-600 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
                             >
-                            <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
-                        </div>
-                        <div class="ml-3 flex-1 min-w-0 overflow-hidden max-w-[140px]">
-                            <p class="text-sm font-bold text-gray-800 truncate group-hover:text-brand-700 transition-colors duration-300">
-                                {{ auth()->user()->name }}
-                            </p>
-                            <div class="flex items-center mt-0.5">
-                                <div class="w-1.5 h-1.5 bg-brand-500 rounded-full mr-2 animate-pulse flex-shrink-0"></div>
-                                <p class="text-xs font-medium text-gray-500 truncate">
-                                    {{ Str::limit(auth()->user()->roles->first()->name ?? 'User', 15) }}
-                                </p>
-                            </div>
-                        </div>
+                                <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Logout
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
