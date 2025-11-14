@@ -32,14 +32,23 @@ try {
     
     $kernel->terminate($request, $response);
 } catch (\Throwable $e) {
-    // Error handling for debugging
+    // Enhanced error handling for debugging
     http_response_code(500);
     
-    if (env('APP_DEBUG', false)) {
-        echo "Error: " . $e->getMessage() . "\n";
-        echo "File: " . $e->getFile() . "\n";
-        echo "Line: " . $e->getLine() . "\n";
-    } else {
-        echo "Application Error";
-    }
+    // Always show detailed error for now to debug
+    echo "<!DOCTYPE html><html><head><title>Laravel Error</title></head><body>";
+    echo "<h1>Application Error</h1>";
+    echo "<h2>Error: " . htmlspecialchars($e->getMessage()) . "</h2>";
+    echo "<p><strong>File:</strong> " . htmlspecialchars($e->getFile()) . "</p>";
+    echo "<p><strong>Line:</strong> " . $e->getLine() . "</p>";
+    echo "<h3>Stack Trace:</h3>";
+    echo "<pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
+    echo "<h3>Environment Info:</h3>";
+    echo "<pre>";
+    echo "APP_ENV: " . ($_ENV['APP_ENV'] ?? 'not set') . "\n";
+    echo "APP_DEBUG: " . ($_ENV['APP_DEBUG'] ?? 'not set') . "\n";
+    echo "VERCEL: " . ($_ENV['VERCEL'] ?? 'not set') . "\n";
+    echo "DB_CONNECTION: " . ($_ENV['DB_CONNECTION'] ?? 'not set') . "\n";
+    echo "</pre>";
+    echo "</body></html>";
 }

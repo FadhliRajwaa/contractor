@@ -71,3 +71,23 @@ $_SERVER['LARAVEL_BOOTSTRAP_CACHE'] = '/tmp/bootstrap/cache';
 putenv('VERCEL=1');
 $_ENV['VERCEL'] = '1';
 $_SERVER['VERCEL'] = '1';
+
+// Set critical Laravel environment variables if not present
+if (!isset($_ENV['APP_KEY'])) {
+    // Try to get from server environment or set a default for testing
+    $_ENV['APP_KEY'] = $_SERVER['APP_KEY'] ?? 'base64:YourAppKeyHereForTesting1234567890=';
+    putenv('APP_KEY=' . $_ENV['APP_KEY']);
+}
+
+if (!isset($_ENV['APP_URL'])) {
+    $_ENV['APP_URL'] = 'https://contractor-test.vercel.app';
+    putenv('APP_URL=' . $_ENV['APP_URL']);
+}
+
+// Disable problematic drivers for serverless
+$_ENV['BROADCAST_DRIVER'] = 'log';
+$_ENV['QUEUE_CONNECTION'] = 'sync';
+$_ENV['MAIL_MAILER'] = 'log';
+putenv('BROADCAST_DRIVER=log');
+putenv('QUEUE_CONNECTION=sync');
+putenv('MAIL_MAILER=log');
