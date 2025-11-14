@@ -12,10 +12,15 @@ use Spatie\Permission\Models\Role;
 class UserManagementController extends Controller
 {
     /**
-     * Display users list
+     * Display a listing of users (SUPERADMIN & ADMINISTRATOR only).
      */
     public function index()
     {
+        // Check permission
+        if (!auth()->user()->can('view users')) {
+            abort(403, 'Unauthorized');
+        }
+        
         $users = User::with('roles')
             ->latest()
             ->paginate(15);
@@ -26,10 +31,37 @@ class UserManagementController extends Controller
     }
 
     /**
-     * Store a new user
+     * Display contractor users for ADMIN KONTRAKTOR.
+     */
+    public function contractorIndex()
+    {
+        // Check permission - only admin_kontraktor
+        if (!auth()->user()->hasRole('admin_kontraktor')) {
+            abort(403, 'Unauthorized');
+        }
+        
+        // Show only customers and user_kontraktor
+        $users = User::with('roles')
+            ->whereHas('roles', function($query) {
+                $query->whereIn('name', ['customer', 'user_kontraktor']);
+            })
+            ->paginate(10);
+            
+        $roles = Role::whereIn('name', ['customer', 'user_kontraktor'])->get();
+        
+        return view('users.contractor-index', compact('users', 'roles'));
+    }
+
+    /**
+     * Store a new user (SUPERADMIN & ADMINISTRATOR)
      */
     public function store(Request $request)
     {
+        // Check permission
+        if (!auth()->user()->can('create users')) {
+            abort(403, 'Unauthorized');
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -55,6 +87,43 @@ class UserManagementController extends Controller
         return redirect()
             ->route('users.index')
             ->with('success', '✅ User baru berhasil ditambahkan! Welcome ' . $user->name . '! Password: ' . $password);
+    }
+
+    /**
+     * Store contractor user (ADMIN KONTRAKTOR only)
+     */
+    public function contractorStore(Request $request)
+    {
+        // Check permission - only admin_kontraktor can create customer & user_kontraktor
+        if (!auth()->user()->hasRole('admin_kontraktor')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['nullable', 'string', 'min:8'],
+            'role' => ['required', 'in:customer,user_kontraktor'], // Limited roles
+            'notes' => ['nullable', 'string'],
+            'is_active' => ['boolean'],
+        ]);
+
+        // Generate password if not provided
+        $password = $validated['password'] ?? Str::random(12);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($password),
+            'notes' => $validated['notes'] ?? null,
+            'is_active' => $validated['is_active'] ?? true,
+        ]);
+
+        $user->assignRole($validated['role']);
+
+        return redirect()
+            ->route('contractor.users.index')
+            ->with('success', '✅ ' . ucfirst($validated['role']) . ' berhasil ditambahkan! Welcome ' . $user->name . '! Password: ' . $password);
     }
 
     /**

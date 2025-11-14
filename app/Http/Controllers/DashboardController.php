@@ -9,7 +9,7 @@ use Spatie\Permission\Models\Role;
 class DashboardController extends Controller
 {
     /**
-     * Display the dashboard.
+     * Display the dashboard with role-based content.
      */
     public function index()
     {
@@ -21,7 +21,59 @@ class DashboardController extends Controller
             'session_id' => request()->session()->getId(),
         ]);
 
-        return view('dashboard.index');
+        $user = auth()->user();
+        $dashboardData = [];
+
+        // SUPERADMIN: System-wide overview
+        if ($user->hasRole('superadmin')) {
+            $dashboardData = [
+                'totalUsers' => User::count(),
+                'totalRoles' => Role::count(),
+                'activeUsers' => User::where('is_active', true)->count(),
+                'recentUsers' => User::with('roles')->latest()->take(5)->get(),
+                'dashboardType' => 'superadmin'
+            ];
+        }
+        // ADMINISTRATOR: System administration
+        elseif ($user->hasRole('administrator')) {
+            $dashboardData = [
+                'totalUsers' => User::count(),
+                'activeUsers' => User::where('is_active', true)->count(),
+                'recentUsers' => User::with('roles')->latest()->take(5)->get(),
+                'dashboardType' => 'administrator'
+            ];
+        }
+        // ADMIN KONTRAKTOR: Contractor management overview
+        elseif ($user->hasRole('admin_kontraktor')) {
+            $dashboardData = [
+                'totalCustomers' => User::role('customer')->count(),
+                'totalUserKontraktor' => User::role('user_kontraktor')->count(),
+                'totalProjects' => 0, // TODO: Implement when Project model ready
+                'activeProjects' => 0, // TODO: Implement when Project model ready
+                'recentCustomers' => User::role('customer')->latest()->take(5)->get(),
+                'dashboardType' => 'admin_kontraktor'
+            ];
+        }
+        // USER KONTRAKTOR: Limited contractor view
+        elseif ($user->hasRole('user_kontraktor')) {
+            $dashboardData = [
+                'assignedProjects' => 0, // TODO: Implement when Project model ready
+                'completedProjects' => 0, // TODO: Implement when Project model ready
+                'pendingTasks' => 0, // TODO: Implement when Task model ready
+                'dashboardType' => 'user_kontraktor'
+            ];
+        }
+        // CUSTOMER: Customer view
+        elseif ($user->hasRole('customer')) {
+            $dashboardData = [
+                'myProjects' => 0, // TODO: Implement when Project model ready
+                'openTickets' => 0, // TODO: Implement when Ticket model ready
+                'projectUpdates' => [], // TODO: Implement when Project model ready
+                'dashboardType' => 'customer'
+            ];
+        }
+
+        return view('dashboard.index', compact('dashboardData'));
     }
 
     /**

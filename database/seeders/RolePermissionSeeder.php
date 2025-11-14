@@ -30,8 +30,23 @@ class RolePermissionSeeder extends Seeder
             'edit roles',
             'delete roles',
             
-            // General permissions
+            // Customer management (untuk kontraktor)
+            'view customers',
+            'create customers',
+            'edit customers',
+            'delete customers',
+            
+            // Project management (untuk kontraktor)
+            'view projects',
+            'create projects',
+            'edit projects',
+            'delete projects',
+            
+            // Dashboard levels
             'view dashboard',
+            'view admin dashboard',
+            'view contractor dashboard',
+            'view customer dashboard',
         ];
 
         foreach ($permissions as $permission) {
@@ -39,26 +54,57 @@ class RolePermissionSeeder extends Seeder
         }
 
         // Create roles and assign permissions
-        $superadministrator = Role::create(['name' => 'superadministrator']);
-        $superadministrator->givePermissionTo(Permission::all());
+        
+        // 1. SUPERADMIN - Full system control
+        $superadmin = Role::create(['name' => 'superadmin']);
+        $superadmin->givePermissionTo(Permission::all());
 
-        $admin = Role::create(['name' => 'admin']);
-        $admin->givePermissionTo([
+        // 2. ADMINISTRATOR - System administrator
+        $administrator = Role::create(['name' => 'administrator']);
+        $administrator->givePermissionTo([
             'view users',
-            'create users',
+            'create users', 
             'edit users',
+            'delete users',
             'view roles',
             'view dashboard',
+            'view admin dashboard',
         ]);
 
-        $contractor = Role::create(['name' => 'contractor']);
-        $contractor->givePermissionTo([
+        // 3. ADMIN (Kontraktor) - Administrator dari kontraktor, bisa buat customer dan user
+        $admin_kontraktor = Role::create(['name' => 'admin_kontraktor']);
+        $admin_kontraktor->givePermissionTo([
+            'view customers',
+            'create customers',
+            'edit customers',
+            'delete customers',
+            'create users', // bisa buat user kontraktor
+            'edit users',
+            'view users',
+            'view projects',
+            'create projects',
+            'edit projects',
+            'delete projects',
             'view dashboard',
+            'view contractor dashboard',
         ]);
 
-        $viewer = Role::create(['name' => 'viewer']);
-        $viewer->givePermissionTo([
+        // 4. USER (Kontraktor) - User biasa kontraktor
+        $user_kontraktor = Role::create(['name' => 'user_kontraktor']);
+        $user_kontraktor->givePermissionTo([
+            'view customers',
+            'view projects',
+            'edit projects', // terbatas
             'view dashboard',
+            'view contractor dashboard',
+        ]);
+
+        // 5. CUSTOMER - Viewer untuk kontraktor
+        $customer = Role::create(['name' => 'customer']);
+        $customer->givePermissionTo([
+            'view projects', // hanya yang assigned ke mereka
+            'view dashboard',
+            'view customer dashboard',
         ]);
     }
 }

@@ -23,7 +23,7 @@ class SuperAdminSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $superAdmin->assignRole('superadministrator');
+        $superAdmin->assignRole('superadmin');
         
         $this->command->info('✅ Super Administrator berhasil dibuat!');
         $this->command->warn('📧 Email: superadmin@contractor.test');
