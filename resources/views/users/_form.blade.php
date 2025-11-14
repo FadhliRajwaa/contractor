@@ -68,13 +68,31 @@
                         type="password" 
                         id="password" 
                         name="password"
-                        class="input-field text-base py-2 sm:py-3 pr-20 sm:pr-24"
+                        class="input-field text-base py-2 sm:py-3 pr-32 sm:pr-36"
                         placeholder="Minimal 8 karakter"
                     >
+                    <!-- Show/Hide Password Toggle -->
+                    <button 
+                        type="button" 
+                        class="absolute inset-y-0 right-20 sm:right-24 flex items-center pr-2 z-10"
+                        onclick="toggleUserPassword('password')"
+                        title="Show/Hide Password"
+                        tabindex="-1"
+                    >
+                        <svg id="password-eye-open" class="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <svg id="password-eye-closed" class="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                        </svg>
+                    </button>
+                    <!-- Generate Password Button -->
                     <button 
                         type="button"
                         onclick="generatePassword()"
-                        class="absolute right-2 top-1/2 -translate-y-1/2 text-xs bg-brand-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-brand-600 transition"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 text-xs bg-brand-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-brand-600 transition z-10"
+                        title="Generate Password"
                     >
                         Generate
                     </button>
@@ -172,6 +190,26 @@
     // User data for editing
     const usersData = @json($users->items());
 
+    // Password toggle function for user form
+    function toggleUserPassword(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const eyeOpen = document.getElementById(inputId + '-eye-open');
+        const eyeClosed = document.getElementById(inputId + '-eye-closed');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeOpen.classList.add('hidden');
+            eyeClosed.classList.remove('hidden');
+        } else {
+            passwordInput.type = 'password';
+            eyeOpen.classList.remove('hidden');
+            eyeClosed.classList.add('hidden');
+        }
+        
+        // Maintain focus on input after toggle (important for mobile)
+        passwordInput.focus();
+    }
+
     function openCreateModal() {
         const modal = document.getElementById('userModal');
         const modalContent = document.getElementById('modalContent');
@@ -264,10 +302,29 @@
             password += charset.charAt(Math.floor(Math.random() * n));
         }
         
-        document.getElementById('password').value = password;
-        document.getElementById('generatedPasswordField').style.display = 'block';
-        document.getElementById('generatedPasswordField').classList.add('animate-fadeInUp');
-        document.getElementById('generatedPassword').textContent = password;
+        const passwordInput = document.getElementById('password');
+        passwordInput.value = password;
+        
+        // Show the generated password display
+        const generatedDisplay = document.getElementById('generatedPasswordDisplay');
+        const generatedText = document.getElementById('generatedPasswordText');
+        if (generatedDisplay && generatedText) {
+            generatedDisplay.style.display = 'block';
+            generatedDisplay.classList.add('animate-fadeInUp');
+            generatedText.textContent = password;
+        }
+        
+        // Temporarily show password as text for better UX
+        passwordInput.type = 'text';
+        const eyeOpen = document.getElementById('password-eye-open');
+        const eyeClosed = document.getElementById('password-eye-closed');
+        if (eyeOpen && eyeClosed) {
+            eyeOpen.classList.add('hidden');
+            eyeClosed.classList.remove('hidden');
+        }
+        
+        // Focus on password field
+        passwordInput.focus();
         
         showSuccess('Password Generated', 'Password baru telah dibuat secara otomatis!');
     }
@@ -344,6 +401,27 @@
     document.getElementById('userModal')?.addEventListener('click', function(event) {
         if (event.target === this) {
             closeModal();
+        }
+    });
+
+    // Prevent eye button from submitting form and add event listeners when DOM loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Prevent password toggle button from submitting form
+        const eyeButton = document.querySelector('button[onclick*="toggleUserPassword"]');
+        if (eyeButton) {
+            eyeButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        }
+
+        // Prevent generate password button from submitting form
+        const generateButton = document.querySelector('button[onclick*="generatePassword"]');
+        if (generateButton) {
+            generateButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
         }
     });
 </script>
