@@ -114,7 +114,17 @@
                 >
                     <option value="">Pilih Role</option>
                     @foreach($roles as $role)
-                        <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
+                        @php
+                            $roleLabels = [
+                                'superadmin' => 'Superadmin',
+                                'administrator' => 'Administrator',
+                                'admin_kontraktor' => 'Admin (Kontraktor)',
+                                'user_kontraktor' => 'User (Kontraktor)',
+                                'customer' => 'Customer (Viewer)'
+                            ];
+                            $label = $roleLabels[$role->name] ?? ucfirst($role->name);
+                        @endphp
+                        <option value="{{ $role->name }}">{{ $label }}</option>
                     @endforeach
                 </select>
                 <p id="roleError" class="mt-1 text-sm text-red-600 hidden"></p>

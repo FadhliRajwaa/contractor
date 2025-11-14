@@ -155,7 +155,17 @@
                         <select class="w-full px-4 py-3 pl-10 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all duration-200 appearance-none bg-white" id="role-filter">
                             <option value="">Semua Role</option>
                             @foreach($roles as $role)
-                                <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
+                                @php
+                                    $roleLabels = [
+                                        'superadmin' => 'Superadmin',
+                                        'administrator' => 'Administrator',
+                                        'admin_kontraktor' => 'Admin (Kontraktor)',
+                                        'user_kontraktor' => 'User (Kontraktor)',
+                                        'customer' => 'Customer (Viewer)'
+                                    ];
+                                    $label = $roleLabels[$role->name] ?? ucfirst($role->name);
+                                @endphp
+                                <option value="{{ $role->name }}">{{ $label }}</option>
                             @endforeach
                         </select>
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -295,8 +305,19 @@
                                 </div>
                             </td>
                             <td class="hidden sm:table-cell px-3 sm:px-6 py-4 whitespace-nowrap">
+                                @php
+                                    $roleLabels = [
+                                        'superadmin' => 'Superadmin',
+                                        'administrator' => 'Administrator',
+                                        'admin_kontraktor' => 'Admin (Kontraktor)',
+                                        'user_kontraktor' => 'User (Kontraktor)',
+                                        'customer' => 'Customer (Viewer)'
+                                    ];
+                                    $roleName = $user->roles->first()->name ?? 'No Role';
+                                    $roleLabel = $roleLabels[$roleName] ?? ucfirst($roleName);
+                                @endphp
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-100 text-brand-800">
-                                    {{ $user->roles->first()->name ?? 'No Role' }}
+                                    {{ $roleLabel }}
                                 </span>
                             </td>
                             <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
