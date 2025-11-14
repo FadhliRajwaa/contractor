@@ -1,240 +1,344 @@
-# 🏗️ Laravel Contractor Management System
+# 🏗️ Contractor Management System
 
-Modern web application for contractor and project management built with Laravel 11, featuring dual database support (Local + Aiven Cloud), clean responsive UI with TailwindCSS, and comprehensive security features.
+Modern web application untuk manajemen kontraktor dengan dual database support dan deployment-ready architecture.
 
-## ✨ Key Features
+## ✨ Features
 
-- **🔄 Dual Database Support** - Seamlessly work with both local MySQL and Aiven Cloud databases
-- **👥 User Management** - Role-based access control with Spatie Laravel Permission
-- **📊 Interactive Dashboard** - Real-time statistics and quick actions
-- **🔒 GitHub-Safe Configuration** - No sensitive credentials in repository
-- **📱 Mobile Responsive** - Optimized for all device sizes
-- **🚀 Production Ready** - Configured for deployment with SSL support
+- **🔐 Multi-Role Authentication** - Super Admin, Admin, User management
+- **📊 Dual Database Support** - Local MySQL dan Aiven Cloud production database  
+- **🎨 Modern UI** - Laravel 11 + Tailwind CSS + Alpine.js
+- **☁️ Cloud Ready** - Optimized untuk Vercel serverless deployment
+- **🚀 High Performance** - Optimized untuk production environment
+- **🔒 Security First** - Environment-based configuration dan secure defaults
 
-![Laravel](https://img.shields.io/badge/Laravel-12.x-red)
-![PHP](https://img.shields.io/badge/PHP-8.2+-blue)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4-38bdf8)
+## 🛠️ Tech Stack
 
-## 📋 Fitur
+- **Backend**: Laravel 11.x (PHP 8.3+)
+- **Frontend**: Tailwind CSS 4.x, Alpine.js, Vite
+- **Database**: MySQL (Local) / Aiven MySQL (Production)
+- **Authentication**: Laravel Sanctum + Spatie Permissions
+- **Deployment**: Vercel (Serverless Functions)
+- **Package Manager**: Composer + NPM
 
-- ✅ **Autentikasi Login** - Sistem login yang aman dengan rate limiting
-- ✅ **Role-based Access Control** - Menggunakan Spatie Laravel Permission
-- ✅ **User Management** - CRUD lengkap untuk manajemen user (khusus superadministrator)
-- ✅ **Modern UI** - Desain responsif dengan TailwindCSS v4 dan palet warna khusus
-- ✅ **Dashboard** - Dashboard informatif dengan statistik real-time
-- ✅ **Mobile Friendly** - Sidebar collapsible untuk pengalaman mobile yang optimal
+---
 
-## 🎨 Palet Warna
+## 📋 Prerequisites
 
-Aplikasi ini menggunakan palet warna brand custom:
-- **Primary**: `#CD2C58` (brand-500)
-- **Secondary**: `#E06B80` (brand-400)
-- **Accent**: `#FFC69D` (brand-200)
-- **Light**: `#FFE6D4` (brand-50)
+Pastikan sistem Anda memiliki:
 
-## 🚀 Quick Start
+- **PHP 8.3+** dengan extensions: BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
+- **Composer 2.x**
+- **Node.js 18+ dan NPM**
+- **MySQL 8.0+** (untuk development)
+- **Git**
 
-### Prerequisites
+---
 
-- PHP 8.2 atau lebih tinggi
-- Composer
-- MySQL 5.7+ atau MariaDB 10.3+
-- Node.js & NPM (untuk build assets)
+## 🚀 Local Development Setup
 
-### Instalasi
+### 1. Clone Repository
 
-1. **Clone repository** (atau sudah ada di folder ini)
 ```bash
-cd e:/Xampp/htdocs/contractor
+git clone https://github.com/YourUsername/contractor.git
+cd contractor
 ```
 
-2. **Install PHP dependencies**
+### 2. Install Dependencies
+
 ```bash
+# Install PHP dependencies
 composer install
-```
 
-3. **Install Node dependencies**
-```bash
+# Install Node.js dependencies  
 npm install
 ```
 
-4. **Setup environment**
-```bash
-copy .env.example .env
-```
+### 3. Environment Configuration
 
-5. **Generate application key**
 ```bash
+# Copy environment template
+cp .env.example .env
+
+# Generate application key
 php artisan key:generate
 ```
 
-6. **Konfigurasi database** di file `.env`
+### 4. Database Setup
+
+Edit `.env` file dengan konfigurasi database local:
+
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=contractor
 DB_USERNAME=root
-DB_PASSWORD=
+DB_PASSWORD=your_password
 ```
 
-7. **Buat database MySQL**
+**Buat database di MySQL:**
 ```sql
-CREATE DATABASE contractor;
+CREATE DATABASE contractor CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-8. **Run migrations & seeders**
+### 5. Run Migrations & Seeders
+
 ```bash
-php artisan migrate:fresh --seed
+# Run database migrations
+php artisan migrate
+
+# Create roles and permissions
+php artisan db:seed --class=RolePermissionSeeder
+
+# Create super admin user
+php artisan db:seed --class=SuperAdminSeeder
 ```
 
-9. **Publish Spatie Permission config**
-```bash
-php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
-```
+### 6. Build Frontend Assets
 
-10. **Build assets**
 ```bash
+# Development build
 npm run dev
-```
 
-11. **Start development server**
-```bash
-php artisan serve
-```
-
-Aplikasi akan berjalan di `http://localhost:8000`
-
-## 👤 Default Superadministrator
-
-Setelah menjalankan seeder, login dengan kredensial berikut:
-
-- **Email**: `superadmin@contractor.test`
-- **Password**: `password123`
-
-> ⚠️ **PENTING**: Segera ganti password setelah login pertama kali!
-
-## 📁 Struktur Proyek
-
-```
-contractor/
-├── app/
-│   ├── Http/
-│   │   └── Controllers/
-│   │       ├── Auth/
-│   │       │   └── LoginController.php
-│   │       ├── DashboardController.php
-│   │       └── UserManagementController.php
-│   └── Models/
-│       └── User.php (dengan HasRoles trait)
-├── database/
-│   ├── migrations/
-│   │   └── 0001_01_01_000000_create_users_table.php
-│   └── seeders/
-│       ├── DatabaseSeeder.php
-│       ├── RolePermissionSeeder.php
-│       └── SuperAdminSeeder.php
-├── resources/
-│   ├── css/
-│   │   └── app.css (TailwindCSS config)
-│   └── views/
-│       ├── auth/
-│       │   └── login.blade.php
-│       ├── dashboard/
-│       │   └── index.blade.php
-│       ├── layouts/
-│       │   └── app.blade.php
-│       └── users/
-│           ├── index.blade.php
-│           └── _form.blade.php
-├── routes/
-│   └── web.php
-├── tests/
-│   └── Feature/
-│       └── LoginTest.php
-└── tailwind.config.js
-```
-
-## 🔐 Roles & Permissions
-
-Aplikasi ini memiliki 4 role bawaan:
-
-1. **superadministrator** - Akses penuh ke semua fitur
-2. **admin** - Dapat melihat dan mengelola user (terbatas)
-3. **contractor** - Akses ke dashboard dan modul contractor (future)
-4. **viewer** - Hanya dapat melihat data (read-only)
-
-Permissions yang tersedia:
-- `view users`, `create users`, `edit users`, `delete users`
-- `view roles`, `create roles`, `edit roles`, `delete roles`
-- `view dashboard`
-
-## 🧪 Testing
-
-Jalankan test dengan perintah:
-
-```bash
-php artisan test
-```
-
-Atau test spesifik:
-
-```bash
-php artisan test --filter LoginTest
-```
-
-## 📱 Mobile Responsiveness
-
-Aplikasi ini sepenuhnya responsif dengan fitur:
-- Sidebar yang dapat di-collapse di mobile
-- Tabel dengan horizontal scroll
-- Tombol aksi yang menjadi dropdown di layar kecil
-- Touch-friendly button sizes
-
-## 🎯 Roadmap
-
-Modul yang akan datang:
-- [ ] Projects Management
-- [ ] Finance & Invoicing
-- [ ] Document Management
-- [ ] Client Portal
-- [ ] Reporting & Analytics
-
-## 🔧 Troubleshooting
-
-### Error: Class 'Spatie\Permission\...' not found
-
-```bash
-composer require spatie/laravel-permission
-php artisan config:clear
-```
-
-### Assets tidak ter-compile
-
-```bash
-npm install
+# Or production build
 npm run build
 ```
 
-### Migration error
+### 7. Start Development Server
 
 ```bash
-php artisan migrate:fresh --seed
+# Start Laravel server
+php artisan serve
+
+# In separate terminal, start Vite dev server
+npm run dev
 ```
 
-## 📝 License
-
-Proyek ini adalah starter template untuk aplikasi contractor management.
-
-## 👨‍💻 Development
-
-Built with ❤️ using:
-- [Laravel 12](https://laravel.com)
-- [TailwindCSS v4](https://tailwindcss.com)
-- [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission)
-- [Heroicons](https://heroicons.com)
-- [Google Fonts - Inter](https://fonts.google.com/specimen/Inter)
+Akses aplikasi di `http://localhost:8000`
 
 ---
 
-**Note**: Ini adalah starter implementation. Anda dapat mengembangkannya lebih lanjut sesuai kebutuhan bisnis Anda.
+## 🌐 Production Deployment (Vercel)
+
+### 1. Prepare Environment
+
+Buat file `.env.vercel` dengan konfigurasi production (tanpa credentials sensitif):
+
+```env
+APP_NAME="Contractor Management"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-app.vercel.app
+
+# Database akan di-set via Vercel Dashboard
+DB_CONNECTION=aiven
+
+# Cache & Session
+CACHE_DRIVER=array
+SESSION_DRIVER=cookie
+SESSION_LIFETIME=120
+
+# Logs
+LOG_CHANNEL=stderr
+
+# Queue & Mail
+QUEUE_CONNECTION=sync
+MAIL_MAILER=log
+```
+
+### 2. Vercel Configuration
+
+File `vercel.json` sudah dikonfigurasi dengan:
+- PHP 8.3 runtime via `vercel-php@0.7.4`
+- Build command untuk compile assets
+- Environment variables untuk serverless optimization
+- Proper routing untuk static assets dan API
+
+### 3. Deploy ke Vercel
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Login ke Vercel
+vercel login
+
+# Deploy
+vercel --prod
+```
+
+### 4. Configure Environment Variables
+
+Di Vercel Dashboard, set environment variables:
+
+```env
+APP_KEY=base64:your-generated-app-key
+DB_CONNECTION=aiven
+AIVEN_DB_HOST=your-aiven-host
+AIVEN_DB_PORT=16722
+AIVEN_DB_DATABASE=contractor
+AIVEN_DB_USERNAME=your-username
+AIVEN_DB_PASSWORD=your-password
+```
+
+### 5. Run Production Setup
+
+Setelah deployment berhasil:
+
+```bash
+# Akses migration endpoint (setup otomatis)
+curl https://your-app.vercel.app/migrate
+```
+
+---
+
+## 🔧 Development Commands
+
+### Database Operations
+
+```bash
+# Fresh migration (reset database)
+php artisan migrate:fresh --seed
+
+# Check database status
+php artisan db:info
+
+# Create new migration
+php artisan make:migration create_table_name
+```
+
+### Code Quality
+
+```bash
+# Run tests
+php artisan test
+
+# Clear caches
+php artisan optimize:clear
+```
+
+### Asset Management
+
+```bash
+# Development mode (watch files)
+npm run dev
+
+# Production build
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+---
+
+## 📂 Project Structure
+
+```
+contractor/
+├── api/                    # Vercel serverless functions
+├── app/
+│   ├── Console/Commands/   # Artisan commands
+│   ├── Http/Controllers/   # Application controllers
+│   ├── Models/            # Eloquent models
+│   ├── Providers/         # Service providers
+│   └── Services/          # Business logic services
+├── bootstrap/             # Laravel bootstrap files
+├── config/                # Configuration files
+├── database/
+│   ├── migrations/        # Database migrations
+│   └── seeders/          # Database seeders
+├── public/               # Public assets
+├── resources/
+│   ├── css/              # Stylesheets
+│   ├── js/               # JavaScript
+│   └── views/            # Blade templates
+├── routes/               # Route definitions
+├── storage/              # File storage
+└── tests/               # Test files
+```
+
+## 🔒 Security Notes
+
+### Production Security
+- Ganti semua default passwords setelah deployment
+- Set `APP_DEBUG=false` di production
+- Gunakan strong `APP_KEY`
+- Konfigurasi database credentials via environment variables
+- Enable HTTPS (Vercel provides automatic HTTPS)
+
+### Environment Variables
+- Jangan commit file `.env` atau `.env.production`
+- Gunakan Vercel Dashboard untuk set sensitive data
+- File `.env.vercel` hanya untuk non-sensitive defaults
+
+---
+
+## 😨 Troubleshooting
+
+### Common Issues
+
+**Build Errors:**
+```bash
+# Clear all caches
+php artisan optimize:clear
+npm run build
+```
+
+**Database Connection:**
+```bash
+# Test database connection
+php artisan db:monitor
+php artisan migrate:status
+```
+
+**Permission Issues:**
+```bash
+# Fix storage permissions
+chmod -R 775 storage bootstrap/cache
+```
+
+### Vercel Specific Issues
+
+**Vite Manifest Error:**
+- Ensure `npm run build` runs in `vercel.json`
+- Check `public/build/manifest.json` exists
+
+**Database Connection Error:**
+- Verify environment variables in Vercel Dashboard
+- Test connection dengan debug endpoint
+
+---
+
+## 📚 Documentation
+
+- [Laravel Documentation](https://laravel.com/docs)
+- [Vercel PHP Runtime](https://vercel.com/docs/functions/serverless-functions/runtimes/php)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+- [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission)
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/new-feature`
+3. Commit changes: `git commit -m 'Add new feature'`
+4. Push to branch: `git push origin feature/new-feature`
+5. Submit pull request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 🆘 Support
+
+Untuk pertanyaan atau bantuan:
+- Create issue di GitHub repository
+- Contact team development
+
+**Happy Coding! 🚀**
