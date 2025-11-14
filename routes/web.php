@@ -6,13 +6,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserManagementController;
 
 // Guest Routes (Login)
-Route::middleware('guest')->group(function () {
+Route::middleware(['guest', 'debug.auth'])->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 });
 
 // Authenticated Routes
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'debug.auth'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     
     // Dashboard routes

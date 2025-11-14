@@ -16,6 +16,11 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
+        // If user is already authenticated, redirect to dashboard
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+        
         return view('auth.login');
     }
 
@@ -48,7 +53,15 @@ class LoginController extends Controller
                 ]);
             }
 
-            return redirect()->intended('dashboard');
+            // Log successful login for debugging
+            \Log::info('User logged in successfully', [
+                'user_id' => Auth::id(),
+                'email' => Auth::user()->email,
+                'session_id' => $request->session()->getId(),
+            ]);
+
+            // Ensure proper redirect to dashboard
+            return redirect()->intended(route('dashboard'));
         }
 
         // Failed login

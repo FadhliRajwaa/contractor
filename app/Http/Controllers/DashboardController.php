@@ -13,6 +13,14 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        // Debug authentication status
+        \Log::info('Dashboard accessed', [
+            'authenticated' => \Auth::check(),
+            'user_id' => \Auth::id(),
+            'user_email' => \Auth::user()?->email ?? 'N/A',
+            'session_id' => request()->session()->getId(),
+        ]);
+
         return view('dashboard.index');
     }
 

@@ -14,6 +14,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'debug.auth' => \App\Http\Middleware\DebugAuthMiddleware::class,
         ]);
         // Trust all proxies for Vercel deployment
         $middleware->trustProxies(at: '*');
