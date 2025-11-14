@@ -1,0 +1,148 @@
+@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    
+    /* Brand Colors */
+    --color-brand-50: #FFE6D4;
+    --color-brand-100: #FFD9C0;
+    --color-brand-200: #FFC69D;
+    --color-brand-300: #FFB389;
+    --color-brand-400: #E06B80;
+    --color-brand-500: #CD2C58;
+    --color-brand-600: #B02449;
+    --color-brand-700: #931C3A;
+    --color-brand-800: #76152C;
+    --color-brand-900: #590E1D;
+}
+
+/* Custom Utility Classes */
+@layer components {
+    .btn-primary {
+        @apply bg-brand-500 hover:bg-brand-600 text-white font-medium py-3 px-6 rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 min-h-[44px];
+    }
+    
+    .btn-secondary {
+        @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 min-h-[44px];
+    }
+    
+    .btn-ghost {
+        @apply bg-transparent hover:bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-lg transition duration-150 ease-in-out;
+    }
+    
+    .input-field {
+        @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 transition duration-150 min-h-[44px];
+    }
+    
+    .card {
+        @apply bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6;
+    }
+    
+    /* Custom blur backgrounds */
+    .modal-backdrop {
+        @apply fixed inset-0 bg-gray-900/40 backdrop-blur-md transition-all duration-500;
+    }
+    
+    .sidebar-backdrop {
+        @apply fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-all duration-300;
+    }
+    
+    .confirmation-backdrop {
+        @apply fixed inset-0 bg-gray-900/30 backdrop-blur-lg transition-all duration-500;
+    }
+    
+    /* Mobile safe area utilities */
+    .safe-area-top {
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    /* Word break utilities */
+    .word-break-normal {
+        word-break: normal;
+        overflow-wrap: normal;
+    }
+    
+    /* Sidebar text overflow fix */
+    .sidebar-text-container {
+        min-width: 0;
+        flex: 1;
+        overflow: hidden;
+    }
+    
+    .sidebar-text-container p {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes modalSlideOut {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9) translateY(-10px);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-slideInUp {
+    animation: slideInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.modal-slide-in {
+    animation: modalSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.modal-slide-out {
+    animation: modalSlideOut 0.3s ease-in-out;
+}
