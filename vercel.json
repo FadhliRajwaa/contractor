@@ -25,9 +25,10 @@
         "APP_DEBUG": "false",
         "LOG_CHANNEL": "stderr",
         "SESSION_DRIVER": "cookie",
-        "VIEW_COMPILED_PATH": "/tmp",
+        "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
         "CACHE_DRIVER": "array",
         "FILESYSTEM_DISK": "local",
-        "DB_CONNECTION": "aiven"
+        "DB_CONNECTION": "aiven",
+        "VERCEL": "1"
     }
 }
