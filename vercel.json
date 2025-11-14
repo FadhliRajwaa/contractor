@@ -1,19 +1,19 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "api/index.php",
-            "use": "vercel-php@0.7.4"
+    "buildCommand": "cp .env.vercel .env",
+    "functions": {
+        "api/*.php": {
+            "runtime": "vercel-php@0.7.4"
         }
-    ],
+    },
     "routes": [
-        {
-            "src": "/(css|js|images)/(.*)",
-            "dest": "/public/$1/$2"
-        },
         {
             "src": "/build/(.*)",
             "dest": "/public/build/$1"
+        },
+        {
+            "src": "/(.*\\.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot|webp))",
+            "dest": "/public/$1"
         },
         {
             "src": "/(.*)",
@@ -21,14 +21,20 @@
         }
     ],
     "env": {
-        "APP_ENV": "production", 
+        "APP_ENV": "production",
         "APP_DEBUG": "true",
+        "APP_CONFIG_CACHE": "/tmp/config.php",
+        "APP_EVENTS_CACHE": "/tmp/events.php", 
+        "APP_PACKAGES_CACHE": "/tmp/packages.php",
+        "APP_ROUTES_CACHE": "/tmp/routes.php",
+        "APP_SERVICES_CACHE": "/tmp/services.php",
+        "VIEW_COMPILED_PATH": "/tmp/views",
+        "CACHE_DRIVER": "array",
         "LOG_CHANNEL": "stderr",
         "SESSION_DRIVER": "cookie",
-        "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
-        "CACHE_DRIVER": "array",
+        "SESSION_LIFETIME": "120",
         "FILESYSTEM_DISK": "local",
-        "DB_CONNECTION": "aiven",
-        "VERCEL": "1"
+        "QUEUE_CONNECTION": "sync",
+        "DB_CONNECTION": "aiven"
     }
 }

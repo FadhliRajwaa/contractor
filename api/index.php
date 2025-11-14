@@ -1,54 +1,63 @@
 <?php
+// Vercel Serverless Configuration for Laravel - Working Approach
 
-// Vercel serverless entry point for Laravel
-use Illuminate\Contracts\Http\Kernel;
-use Illuminate\Http\Request;
-
-define('LARAVEL_START', microtime(true));
-
-// Autoload dependencies
-if (file_exists(__DIR__.'/../vendor/autoload.php')) {
-    require __DIR__.'/../vendor/autoload.php';
-} else {
+// Custom error handler to catch ALL errors
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
     http_response_code(500);
-    exit('Vendor autoload not found. Please run composer install.');
+    header('Content-Type: application/json');
+    die(json_encode([
+        'error' => 'PHP Error',
+        'type' => $errno,
+        'message' => $errstr,
+        'file' => $errfile,
+        'line' => $errline
+    ], JSON_PRETTY_PRINT));
+});
+
+// Custom exception handler
+set_exception_handler(function($e) {
+    http_response_code(500);
+    header('Content-Type: application/json');
+    die(json_encode([
+        'error' => get_class($e),
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine(),
+        'trace' => array_slice(explode("\n", $e->getTraceAsString()), 0, 15)
+    ], JSON_PRETTY_PRINT));
+});
+
+// Enable error display
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
+// Set environment variables BEFORE Laravel bootstraps
+$_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
+$_ENV['CACHE_DRIVER'] = 'array';
+$_ENV['SESSION_DRIVER'] = 'cookie';
+$_ENV['LOG_CHANNEL'] = 'stderr';
+$_ENV['APP_STORAGE'] = '/tmp/storage';
+
+// Create required tmp directories
+$dirs = [
+    '/tmp/storage/framework/cache/data',
+    '/tmp/storage/framework/sessions',
+    '/tmp/storage/framework/views',
+    '/tmp/storage/framework/testing',
+    '/tmp/storage/logs',
+    '/tmp/views'
+];
+
+foreach ($dirs as $dir) {
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
+    }
 }
 
-// Setup Vercel serverless environment BEFORE Laravel bootstrap
-require_once __DIR__.'/../bootstrap/vercel.php';
+// .env file is created during build from .env.vercel (see vercel.json buildCommand)
+// This ensures .env exists in read-only filesystem
+// Actual environment values come from Vercel Environment Variables Dashboard
 
-// Bootstrap Laravel application
-$app = require_once __DIR__.'/../bootstrap/app.php';
-
-try {
-    // Handle the request
-    $kernel = $app->make(Kernel::class);
-    
-    $response = $kernel->handle(
-        $request = Request::capture()
-    );
-    
-    $response->send();
-    
-    $kernel->terminate($request, $response);
-} catch (\Throwable $e) {
-    // Enhanced error handling for debugging
-    http_response_code(500);
-    
-    // Always show detailed error for now to debug
-    echo "<!DOCTYPE html><html><head><title>Laravel Error</title></head><body>";
-    echo "<h1>Application Error</h1>";
-    echo "<h2>Error: " . htmlspecialchars($e->getMessage()) . "</h2>";
-    echo "<p><strong>File:</strong> " . htmlspecialchars($e->getFile()) . "</p>";
-    echo "<p><strong>Line:</strong> " . $e->getLine() . "</p>";
-    echo "<h3>Stack Trace:</h3>";
-    echo "<pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
-    echo "<h3>Environment Info:</h3>";
-    echo "<pre>";
-    echo "APP_ENV: " . ($_ENV['APP_ENV'] ?? 'not set') . "\n";
-    echo "APP_DEBUG: " . ($_ENV['APP_DEBUG'] ?? 'not set') . "\n";
-    echo "VERCEL: " . ($_ENV['VERCEL'] ?? 'not set') . "\n";
-    echo "DB_CONNECTION: " . ($_ENV['DB_CONNECTION'] ?? 'not set') . "\n";
-    echo "</pre>";
-    echo "</body></html>";
-}
+// Boot Laravel using standard Laravel bootstrap
+require __DIR__ . '/../public/index.php';
