@@ -1,6 +1,15 @@
-# ContractorApp 🏗️
+# 🏗️ Laravel Contractor Management System
 
-Aplikasi web modern untuk manajemen perusahaan contractor menggunakan Laravel 12, MySQL, dan TailwindCSS.
+Modern web application for contractor and project management built with Laravel 11, featuring dual database support (Local + Aiven Cloud), clean responsive UI with TailwindCSS, and comprehensive security features.
+
+## ✨ Key Features
+
+- **🔄 Dual Database Support** - Seamlessly work with both local MySQL and Aiven Cloud databases
+- **👥 User Management** - Role-based access control with Spatie Laravel Permission
+- **📊 Interactive Dashboard** - Real-time statistics and quick actions
+- **🔒 GitHub-Safe Configuration** - No sensitive credentials in repository
+- **📱 Mobile Responsive** - Optimized for all device sizes
+- **🚀 Production Ready** - Configured for deployment with SSL support
 
 ![Laravel](https://img.shields.io/badge/Laravel-12.x-red)
 ![PHP](https://img.shields.io/badge/PHP-8.2+-blue)
