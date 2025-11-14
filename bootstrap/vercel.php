@@ -58,9 +58,98 @@ $packagesContent = '<?php return array (
 
 file_put_contents('/tmp/bootstrap/cache/packages.php', $packagesContent);
 
-// Also create services.php to prevent other cache issues
-$servicesContent = '<?php return [];';
+// Create services.php with proper Laravel core services
+$servicesContent = '<?php return [
+    \'providers\' => [
+        \'Illuminate\\Auth\\AuthServiceProvider\' => \'auth\',
+        \'Illuminate\\Broadcasting\\BroadcastServiceProvider\' => \'broadcast\',
+        \'Illuminate\\Bus\\BusServiceProvider\' => \'bus\',
+        \'Illuminate\\Cache\\CacheServiceProvider\' => \'cache\',
+        \'Illuminate\\Foundation\\Providers\\ConsoleSupportServiceProvider\' => \'console\',
+        \'Illuminate\\Cookie\\CookieServiceProvider\' => \'cookie\',
+        \'Illuminate\\Database\\DatabaseServiceProvider\' => \'database\',
+        \'Illuminate\\Encryption\\EncryptionServiceProvider\' => \'encryption\',
+        \'Illuminate\\Filesystem\\FilesystemServiceProvider\' => \'filesystem\',
+        \'Illuminate\\Foundation\\Providers\\FoundationServiceProvider\' => \'foundation\',
+        \'Illuminate\\Hashing\\HashServiceProvider\' => \'hash\',
+        \'Illuminate\\Mail\\MailServiceProvider\' => \'mail\',
+        \'Illuminate\\Notifications\\NotificationServiceProvider\' => \'notifications\',
+        \'Illuminate\\Pagination\\PaginationServiceProvider\' => \'pagination\',
+        \'Illuminate\\Pipeline\\PipelineServiceProvider\' => \'pipeline\',
+        \'Illuminate\\Queue\\QueueServiceProvider\' => \'queue\',
+        \'Illuminate\\Redis\\RedisServiceProvider\' => \'redis\',
+        \'Illuminate\\Auth\\Passwords\\PasswordResetServiceProvider\' => \'password\',
+        \'Illuminate\\Session\\SessionServiceProvider\' => \'session\',
+        \'Illuminate\\Translation\\TranslationServiceProvider\' => \'translation\',
+        \'Illuminate\\Validation\\ValidationServiceProvider\' => \'validation\',
+        \'Illuminate\\View\\ViewServiceProvider\' => \'view\'
+    ],
+    \'eager\' => [
+        \'Illuminate\\Auth\\AuthServiceProvider\',
+        \'Illuminate\\Cookie\\CookieServiceProvider\',
+        \'Illuminate\\Database\\DatabaseServiceProvider\',
+        \'Illuminate\\Encryption\\EncryptionServiceProvider\',
+        \'Illuminate\\Filesystem\\FilesystemServiceProvider\',
+        \'Illuminate\\Foundation\\Providers\\FoundationServiceProvider\',
+        \'Illuminate\\Notifications\\NotificationServiceProvider\',
+        \'Illuminate\\Pagination\\PaginationServiceProvider\',
+        \'Illuminate\\Session\\SessionServiceProvider\',
+        \'Illuminate\\View\\ViewServiceProvider\'
+    ],
+    \'deferred\' => [
+        \'auth\' => \'Illuminate\\Auth\\AuthServiceProvider\',
+        \'cache\' => \'Illuminate\\Cache\\CacheServiceProvider\',
+        \'view\' => \'Illuminate\\View\\ViewServiceProvider\'
+    ]
+];';
 file_put_contents('/tmp/bootstrap/cache/services.php', $servicesContent);
+
+// Create basic config cache to prevent config loading issues
+$configContent = '<?php return [
+    "app" => [
+        "name" => "Contractor App",
+        "env" => "production",
+        "debug" => true,
+        "url" => "https://contractor-test.vercel.app",
+        "timezone" => "UTC",
+        "locale" => "en",
+        "fallback_locale" => "en",
+        "faker_locale" => "en_US",
+        "cipher" => "AES-256-CBC",
+        "key" => "' . ($_ENV['APP_KEY'] ?? 'base64:YourAppKeyHereForTesting1234567890=') . '",
+        "previous_keys" => [],
+        "maintenance" => [
+            "driver" => "file"
+        ],
+        "providers" => [
+            "Illuminate\\Auth\\AuthServiceProvider",
+            "Illuminate\\Broadcasting\\BroadcastServiceProvider", 
+            "Illuminate\\Bus\\BusServiceProvider",
+            "Illuminate\\Cache\\CacheServiceProvider",
+            "Illuminate\\Foundation\\Providers\\ConsoleSupportServiceProvider",
+            "Illuminate\\Cookie\\CookieServiceProvider",
+            "Illuminate\\Database\\DatabaseServiceProvider",
+            "Illuminate\\Encryption\\EncryptionServiceProvider", 
+            "Illuminate\\Filesystem\\FilesystemServiceProvider",
+            "Illuminate\\Foundation\\Providers\\FoundationServiceProvider",
+            "Illuminate\\Hashing\\HashServiceProvider",
+            "Illuminate\\Mail\\MailServiceProvider",
+            "Illuminate\\Notifications\\NotificationServiceProvider",
+            "Illuminate\\Pagination\\PaginationServiceProvider",
+            "Illuminate\\Pipeline\\PipelineServiceProvider",
+            "Illuminate\\Queue\\QueueServiceProvider",
+            "Illuminate\\Redis\\RedisServiceProvider",
+            "Illuminate\\Auth\\Passwords\\PasswordResetServiceProvider", 
+            "Illuminate\\Session\\SessionServiceProvider",
+            "Illuminate\\Translation\\TranslationServiceProvider",
+            "Illuminate\\Validation\\ValidationServiceProvider",
+            "Illuminate\\View\\ViewServiceProvider",
+            "App\\Providers\\AppServiceProvider",
+            "App\\Providers\\ServerlessServiceProvider"
+        ]
+    ]
+];';
+file_put_contents('/tmp/bootstrap/cache/config.php', $configContent);
 
 // Override Laravel paths using environment variables
 putenv('LARAVEL_BOOTSTRAP_CACHE=/tmp/bootstrap/cache');
