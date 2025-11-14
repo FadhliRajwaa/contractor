@@ -2,13 +2,8 @@
 
 /**
  * Vercel Serverless Environment Setup
- * Runs before Laravel bootstrap to setup writable directories
+ * Pre-generate package manifest and setup environment
  */
-
-// Only run in Vercel environment
-if (!isset($_ENV['VERCEL']) && !isset($_SERVER['VERCEL'])) {
-    return;
-}
 
 // Create writable directories for Laravel in serverless environment
 $tmpDirs = [
@@ -29,17 +24,50 @@ foreach ($tmpDirs as $dir) {
     }
 }
 
-// Override Laravel's default bootstrap cache path
-if (!defined('LARAVEL_BOOTSTRAP_CACHE')) {
-    define('LARAVEL_BOOTSTRAP_CACHE', '/tmp/bootstrap/cache');
-}
+// Pre-generate packages.php to avoid write issues
+$packagesContent = '<?php return array (
+  \'laravel/tinker\' => 
+  array (
+    \'providers\' => 
+    array (
+      0 => \'Laravel\\Tinker\\TinkerServiceProvider\',
+    ),
+  ),
+  \'nesbot/carbon\' => 
+  array (
+    \'providers\' => 
+    array (
+      0 => \'Carbon\\Laravel\\ServiceProvider\',
+    ),
+  ),
+  \'nunomaduro/termwind\' => 
+  array (
+    \'providers\' => 
+    array (
+      0 => \'Termwind\\Laravel\\TermwindServiceProvider\',
+    ),
+  ),
+  \'spatie/laravel-permission\' => 
+  array (
+    \'providers\' => 
+    array (
+      0 => \'Spatie\\Permission\\PermissionServiceProvider\',
+    ),
+  ),
+);';
 
-// Override storage path for Laravel
-if (!defined('LARAVEL_STORAGE_PATH')) {
-    define('LARAVEL_STORAGE_PATH', '/tmp/storage');
-}
+file_put_contents('/tmp/bootstrap/cache/packages.php', $packagesContent);
 
-// Set up environment for package manifest
+// Also create services.php to prevent other cache issues
+$servicesContent = '<?php return [];';
+file_put_contents('/tmp/bootstrap/cache/services.php', $servicesContent);
+
+// Override Laravel paths using environment variables
 putenv('LARAVEL_BOOTSTRAP_CACHE=/tmp/bootstrap/cache');
 $_ENV['LARAVEL_BOOTSTRAP_CACHE'] = '/tmp/bootstrap/cache';
 $_SERVER['LARAVEL_BOOTSTRAP_CACHE'] = '/tmp/bootstrap/cache';
+
+// Set app running in serverless
+putenv('VERCEL=1');
+$_ENV['VERCEL'] = '1';
+$_SERVER['VERCEL'] = '1';

@@ -23,14 +23,22 @@ $app = Application::configure(basePath: dirname(__DIR__))
     })->create();
 
 // Override PackageManifest for serverless environments
-if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || !is_writable($app->bootstrapPath('cache'))) {
-    $app->singleton(PackageManifest::class, function ($app) {
-        return new PackageManifest(
-            $app->make('files'),
-            $app->basePath(),
-            '/tmp/bootstrap/cache/packages.php'
-        );
-    });
+$app->singleton(PackageManifest::class, function ($app) {
+    // Always use /tmp for cache in production or if bootstrap/cache not writable
+    $cachePath = (app()->environment('production') || !is_writable($app->bootstrapPath('cache'))) 
+        ? '/tmp/bootstrap/cache/packages.php'
+        : $app->bootstrapPath('cache/packages.php');
+        
+    return new PackageManifest(
+        $app->make('files'),
+        $app->basePath(),
+        $cachePath
+    );
+});
+
+// Override other bootstrap paths for serverless
+if (app()->environment('production') || !is_writable($app->bootstrapPath('cache'))) {
+    $app->useStoragePath('/tmp/storage');
 }
 
 return $app;
