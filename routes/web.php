@@ -23,8 +23,8 @@ Route::middleware(['auth', 'debug.auth'])->group(function () {
     Route::get('/dashboard/search', [DashboardController::class, 'search'])->name('dashboard.search');
     
     // User Management 
-    // SUPERADMIN & ADMINISTRATOR: Full user management
-    Route::middleware(['role:superadmin|administrator'])->prefix('users')->name('users.')->group(function () {
+    // SUPERADMIN (nama lama: superadministrator) & ADMINISTRATOR: Full user management
+    Route::middleware(['role:superadmin|superadministrator|administrator'])->prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserManagementController::class, 'index'])->name('index');
         Route::post('/', [UserManagementController::class, 'store'])->name('store');
         Route::put('/{user}', [UserManagementController::class, 'update'])->name('update');
