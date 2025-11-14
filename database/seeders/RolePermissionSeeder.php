@@ -42,6 +42,12 @@ class RolePermissionSeeder extends Seeder
             'edit projects',
             'delete projects',
             
+            // Agency management (untuk kontraktor)
+            'view agencies',
+            'create agencies',
+            'edit agencies',
+            'delete agencies',
+            
             // Dashboard levels
             'view dashboard',
             'view admin dashboard',
@@ -71,7 +77,7 @@ class RolePermissionSeeder extends Seeder
             'view admin dashboard',
         ]);
 
-        // 3. ADMIN (Kontraktor) - Administrator dari kontraktor, bisa buat customer dan user
+        // 3. ADMIN (Kontraktor) - Administrator dari kontraktor, bisa buat customer, user, dan agency
         $admin_kontraktor = Role::create(['name' => 'admin_kontraktor']);
         $admin_kontraktor->givePermissionTo([
             'view customers',
@@ -85,6 +91,10 @@ class RolePermissionSeeder extends Seeder
             'create projects',
             'edit projects',
             'delete projects',
+            'view agencies',
+            'create agencies',
+            'edit agencies',
+            'delete agencies',
             'view dashboard',
             'view contractor dashboard',
         ]);

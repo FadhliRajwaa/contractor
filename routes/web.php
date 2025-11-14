@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\AgencyController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ProjectController;
 
 // Guest Routes (Login)
 Route::middleware(['guest', 'debug.auth'])->group(function () {
@@ -34,6 +37,14 @@ Route::middleware(['auth', 'debug.auth'])->group(function () {
     Route::middleware(['role:admin_kontraktor'])->prefix('contractor-users')->name('contractor.users.')->group(function () {
         Route::get('/', [UserManagementController::class, 'contractorIndex'])->name('index');
         Route::post('/', [UserManagementController::class, 'contractorStore'])->name('store'); // customers & user_kontraktor only
+    });
+
+    // Agency Management (Admin Kontraktor)
+    Route::middleware(['role:admin_kontraktor'])->prefix('agencies')->name('agencies.')->group(function () {
+        Route::get('/', [AgencyController::class, 'index'])->name('index');
+        Route::post('/', [AgencyController::class, 'store'])->name('store');
+        Route::put('/{agency}', [AgencyController::class, 'update'])->name('update');
+        Route::delete('/{agency}', [AgencyController::class, 'destroy'])->name('destroy');
     });
     
     // Customer Management (Admin Kontraktor & User Kontraktor)
