@@ -176,14 +176,14 @@
                 <h3 class="text-lg sm:text-xl font-bold text-gray-900">Quick Actions</h3>
             </div>
             <div class="space-y-3 sm:space-y-4">
-                @role('superadmin|superadministrator')
+                @hasanyrole('superadmin|superadministrator|administrator')
                     <button onclick="openCreateUserModal()" class="w-full flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl hover:from-brand-600 hover:to-brand-700 transition-all duration-300 shadow-lg hover:shadow-xl group" type="button">
                         <svg class="h-5 w-5 mr-3 transition-transform duration-300 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
                         <span class="font-semibold">Add New User</span>
                     </button>
-                @endrole
+                @endhasanyrole
 
                 <button onclick="refreshDashboard()" class="w-full flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl group" type="button">
                     <svg class="h-5 w-5 mr-3 transition-transform duration-300 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">

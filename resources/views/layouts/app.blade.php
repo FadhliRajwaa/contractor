@@ -77,7 +77,7 @@
                         </a>
 
                         <!-- User Management (Superadmin / Administrator) -->
-                        @role('superadmin|superadministrator|administrator')
+                        @hasanyrole('superadmin|superadministrator|administrator')
                         <a 
                             href="{{ route('users.index') }}" 
                             class="group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-105 {{ request()->routeIs('users.*') ? 'bg-gradient-to-r from-brand-50 to-brand-100 text-brand-700 shadow-md border-l-4 border-brand-500' : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:shadow-sm' }}"
@@ -92,7 +92,7 @@
                                 <div class="ml-auto w-2 h-2 bg-brand-500 rounded-full animate-pulse"></div>
                             @endif
                         </a>
-                        @endrole
+                        @endhasanyrole
 
                         <!-- Agencies (Only for Admin Kontraktor) -->
                         @role('admin_kontraktor')
@@ -227,7 +227,7 @@
                             @endif
                         </a>
                         
-                        @role('superadmin|superadministrator|administrator')
+                        @hasanyrole('superadmin|superadministrator|administrator')
                         <a href="{{ route('users.index') }}" class="group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-105 {{ request()->routeIs('users.*') ? 'bg-gradient-to-r from-brand-50 to-brand-100 text-brand-700 shadow-md border-l-4 border-brand-500' : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:shadow-sm' }}">
                             <div class="flex items-center justify-center w-8 h-8 mr-3 rounded-lg {{ request()->routeIs('users.*') ? 'bg-brand-500 text-white' : 'bg-gray-100 text-gray-600 group-hover:bg-brand-100 group-hover:text-brand-600' }} transition-all duration-300">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -239,7 +239,7 @@
                                 <div class="ml-auto w-2 h-2 bg-brand-500 rounded-full animate-pulse"></div>
                             @endif
                         </a>
-                        @endrole
+                        @endhasanyrole
                     </div>
                 </nav>
                 
