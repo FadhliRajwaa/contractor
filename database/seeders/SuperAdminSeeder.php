@@ -15,15 +15,19 @@ class SuperAdminSeeder extends Seeder
      */
     public function run(): void
     {
-        $superAdmin = User::create([
-            'name' => 'Super Administrator',
-            'email' => 'superadmin@contractor.test',
-            'password' => Hash::make('password123'), // GANTI PASSWORD INI!
-            'email_verified_at' => now(),
-            'is_active' => true,
-        ]);
+        $superAdmin = User::updateOrCreate(
+            ['email' => 'superadmin@contractor.test'],
+            [
+                'name' => 'Super Administrator',
+                'email' => 'superadmin@contractor.test',
+                'password' => Hash::make('password123'), // GANTI PASSWORD INI!
+                'email_verified_at' => now(),
+                'is_active' => true,
+            ]
+        );
 
-        $superAdmin->assignRole('superadmin');
+        // Pastikan user ini selalu punya role superadmin
+        $superAdmin->syncRoles(['superadmin']);
         
         $this->command->info('✅ Super Administrator berhasil dibuat!');
         $this->command->warn('📧 Email: superadmin@contractor.test');

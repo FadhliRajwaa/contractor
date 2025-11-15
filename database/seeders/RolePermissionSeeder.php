@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -15,6 +16,18 @@ class RolePermissionSeeder extends Seeder
     {
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Bersihkan data lama agar seeder idempotent (aman dijalankan berulang)
+        // Nonaktifkan dulu foreign key checks supaya TRUNCATE tidak error
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        DB::table('model_has_permissions')->truncate();
+        DB::table('model_has_roles')->truncate();
+        DB::table('role_has_permissions')->truncate();
+        DB::table('permissions')->truncate();
+        DB::table('roles')->truncate();
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         // Create permissions
         $permissions = [
