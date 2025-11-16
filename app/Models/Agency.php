@@ -16,14 +16,10 @@ class Agency extends Model
         'phone',           // Phone
         'pic_name',        // PIC (Personal In Charge)
         'is_active',       // Status aktif/non-aktif
-        'tier',            // Tier level (3-5)
-        'max_users',       // Maximum users allowed
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'tier' => 'integer',
-        'max_users' => 'integer',
     ];
 
     /**
@@ -70,32 +66,4 @@ class Agency extends Model
         return max(0, 5 - $this->getAdminKontraktorCount());
     }
 
-    /**
-     * Check if agency can add more users (general - for tier system if needed)
-     */
-    public function canAddUser()
-    {
-        return $this->getCurrentUserCount() < $this->max_users;
-    }
-
-    /**
-     * Get remaining user slots (general - for tier system if needed)
-     */
-    public function getRemainingSlots()
-    {
-        return max(0, $this->max_users - $this->getCurrentUserCount());
-    }
-
-    /**
-     * Get tier label
-     */
-    public function getTierLabelAttribute()
-    {
-        return match($this->tier) {
-            3 => 'Basic',
-            4 => 'Standard',
-            5 => 'Premium',
-            default => 'Unknown'
-        };
-    }
 }
