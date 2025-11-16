@@ -188,11 +188,11 @@
                 <!-- Logo -->
                 <div class="flex items-center justify-between h-16 px-6 bg-gradient-to-br from-brand-500 via-brand-600 to-brand-700 relative overflow-hidden flex-shrink-0">
                     <!-- Background Pattern -->
-                    <div class="absolute inset-0 opacity-10">
+                    <div class="absolute inset-0 opacity-10 pointer-events-none">
                         <div class="absolute top-0 -right-4 w-32 h-32 bg-white rounded-full"></div>
                         <div class="absolute bottom-0 -left-4 w-24 h-24 bg-white rounded-full"></div>
                     </div>
-                    <div class="relative flex items-center space-x-2">
+                    <div class="relative z-10 flex items-center space-x-2">
                         <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-lg">
                             <svg class="w-5 h-5 text-brand-600" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
@@ -203,7 +203,8 @@
                     <!-- Close Button for Mobile -->
                     <button 
                         onclick="toggleSidebar()" 
-                        class="relative lg:hidden text-white hover:bg-white/20 rounded-lg p-1.5 transition-colors duration-200"
+                        class="relative z-10 lg:hidden text-white hover:bg-white/20 rounded-lg p-1.5 transition-colors duration-200 flex-shrink-0"
+                        aria-label="Close sidebar"
                     >
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
