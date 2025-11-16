@@ -23,8 +23,8 @@ Route::middleware(['auth', 'debug.auth'])->group(function () {
     Route::get('/dashboard/search', [DashboardController::class, 'search'])->name('dashboard.search');
     
     // User Management 
-    // SUPERADMIN (nama lama: superadministrator) & ADMINISTRATOR: Full user management
-    Route::middleware(['role:superadmin|superadministrator|administrator'])->prefix('users')->name('users.')->group(function () {
+    // SUPERADMIN, ADMINISTRATOR, ADMIN KONTRAKTOR: Full user management (dengan filter hierarchy di controller)
+    Route::middleware(['role:superadmin|superadministrator|administrator|admin_kontraktor'])->prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserManagementController::class, 'index'])->name('index');
         Route::post('/', [UserManagementController::class, 'store'])->name('store');
         Route::put('/{user}', [UserManagementController::class, 'update'])->name('update');
@@ -39,12 +39,13 @@ Route::middleware(['auth', 'debug.auth'])->group(function () {
         Route::post('/', [UserManagementController::class, 'contractorStore'])->name('store'); // customers & user_kontraktor only
     });
 
-    // Agency Management (Admin Kontraktor)
-    Route::middleware(['role:admin_kontraktor'])->prefix('agencies')->name('agencies.')->group(function () {
+    // Agency Management (Superadmin, Administrator, Admin Kontraktor)
+    Route::middleware(['role:superadmin|administrator|admin_kontraktor'])->prefix('agencies')->name('agencies.')->group(function () {
         Route::get('/', [AgencyController::class, 'index'])->name('index');
         Route::post('/', [AgencyController::class, 'store'])->name('store');
         Route::put('/{agency}', [AgencyController::class, 'update'])->name('update');
         Route::delete('/{agency}', [AgencyController::class, 'destroy'])->name('destroy');
+        Route::patch('/{agency}/toggle-status', [AgencyController::class, 'toggleStatus'])->name('toggleStatus');
     });
     
     // Customer Management (Admin Kontraktor & User Kontraktor)

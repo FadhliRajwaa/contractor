@@ -86,6 +86,11 @@ class RolePermissionSeeder extends Seeder
             'edit users',
             'delete users',
             'view roles',
+            // Agency management (boleh bantu buat/kelola agency)
+            'view agencies',
+            'create agencies',
+            'edit agencies',
+            'delete agencies',
             'view dashboard',
             'view admin dashboard',
         ]);

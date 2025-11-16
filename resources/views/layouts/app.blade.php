@@ -94,8 +94,8 @@
                         </a>
                         @endcan
 
-                        <!-- Agencies (Only for Admin Kontraktor) -->
-                        @role('admin_kontraktor')
+                        <!-- Agencies (by permission) -->
+                        @can('view agencies')
                         <a 
                             href="{{ route('agencies.index') }}" 
                             class="group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-105 {{ request()->routeIs('agencies.*') ? 'bg-gradient-to-r from-brand-50 to-brand-100 text-brand-700 shadow-md border-l-4 border-brand-500' : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:shadow-sm' }}"
@@ -110,7 +110,7 @@
                                 <div class="ml-auto w-2 h-2 bg-brand-500 rounded-full animate-pulse"></div>
                             @endif
                         </a>
-                        @endrole
+                        @endcan
 
                         <!-- Placeholder for future modules -->
                         <div class="pt-6 mt-6 border-t border-gray-100 relative">
@@ -398,8 +398,8 @@
 
         <!-- Main Content -->
         <div class="lg:pl-64 flex flex-col min-h-screen pt-16 lg:pt-0">
-            <!-- Top Bar -->
-            <div class="sticky top-0 z-10 bg-white border-b border-gray-200 lg:block hidden">
+            <!-- Top Bar (sticky dengan z-index tinggi agar di atas konten) -->
+            <div class="sticky top-0 z-30 bg-white border-b border-gray-200 lg:block hidden">
                 <div class="px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 items-center justify-between">
                         <!-- Breadcrumb -->

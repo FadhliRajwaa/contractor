@@ -29,10 +29,19 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+        try {
+            $request->validate([
+                'email' => ['required', 'string', 'email'],
+                'password' => ['required', 'string'],
+            ]);
+        } catch (ValidationException $e) {
+            \Log::warning('Login validation failed', [
+                'email' => $request->input('email'),
+                'ip' => $request->ip(),
+                'errors' => $e->errors()
+            ]);
+            throw $e;
+        }
 
         // Check rate limiting
         $this->checkTooManyFailedAttempts($request);
@@ -47,9 +56,16 @@ class LoginController extends Controller
 
             // Check if user is active
             if (!Auth::user()->is_active) {
+                $email = Auth::user()->email;
                 Auth::logout();
+                
+                \Log::warning('Inactive user attempted login', [
+                    'email' => $email,
+                    'ip' => $request->ip(),
+                ]);
+                
                 throw ValidationException::withMessages([
-                    'email' => 'Akun Anda tidak aktif. Hubungi administrator.',
+                    'email' => '🚫 Akun Anda telah dinonaktifkan. Silakan hubungi administrator untuk informasi lebih lanjut.',
                 ]);
             }
 
@@ -66,9 +82,15 @@ class LoginController extends Controller
 
         // Failed login
         RateLimiter::hit($this->throttleKey($request), 60);
+        
+        \Log::warning('Failed login attempt', [
+            'email' => $request->input('email'),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
 
         throw ValidationException::withMessages([
-            'email' => 'Kredensial yang Anda masukkan tidak cocok dengan data kami.',
+            'email' => '❌ Email atau password yang Anda masukkan salah. Silakan periksa kembali.',
         ]);
     }
 
@@ -103,11 +125,14 @@ class LoginController extends Controller
 
         $seconds = RateLimiter::availableIn($this->throttleKey($request));
 
+        \Log::warning('Too many login attempts', [
+            'email' => $request->input('email'),
+            'ip' => $request->ip(),
+            'retry_after_seconds' => $seconds,
+        ]);
+        
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'email' => '⏱️ Terlalu banyak percobaan login. Silakan coba lagi dalam ' . ceil($seconds / 60) . ' menit.',
         ]);
     }
 }

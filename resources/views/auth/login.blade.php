@@ -76,6 +76,45 @@
                 </p>
             </div>
 
+            <!-- Session Messages -->
+            @if(session('error'))
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-lg animate-fadeInUp" style="animation-delay: 0.1s;">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-red-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-red-800">{{ session('error') }}</p>
+                            @if(session('info'))
+                                <p class="text-xs text-red-600 mt-1">{{ session('info') }}</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-lg animate-fadeInUp" style="animation-delay: 0.1s;">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-sm font-semibold text-green-800">{{ session('success') }}</p>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('info')  && !session('error'))
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg shadow-lg animate-fadeInUp" style="animation-delay: 0.1s;">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-blue-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-sm font-semibold text-blue-800">{{ session('info') }}</p>
+                    </div>
+                </div>
+            @endif
+
             <!-- Login Card -->
             <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl p-8 transform hover:shadow-3xl transition-all duration-500 animate-fadeInUp border border-white/20" style="animation-delay: 0.2s;">
                 <form method="POST" action="{{ route('login.post') }}" class="space-y-6">
@@ -205,7 +244,7 @@
         </div>
     </div>
 
-    <!-- Client-side validation and password toggle script -->
+    <!-- Client-side validation, password toggle, and auto-refresh script -->
     <script>
         // Password toggle function
         function togglePassword(inputId) {
@@ -264,6 +303,45 @@
                     e.preventDefault();
                 }
             });
+
+            // Auto-refresh page after 10 minutes to prevent CSRF token expiry
+            // This ensures the login form always has a fresh token
+            let refreshTimeout = setTimeout(function() {
+                console.log('Auto-refreshing page to renew CSRF token...');
+                window.location.reload();
+            }, 10 * 60 * 1000); // 10 minutes
+
+            // Clear timeout if user submits the form
+            form.addEventListener('submit', function() {
+                clearTimeout(refreshTimeout);
+            });
+
+            // Show a subtle warning before auto-refresh (1 minute before)
+            setTimeout(function() {
+                const warningDiv = document.createElement('div');
+                warningDiv.className = 'fixed bottom-4 right-4 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg shadow-lg max-w-sm animate-fadeInUp z-50';
+                warningDiv.innerHTML = `
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-yellow-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <p class="text-sm font-semibold text-yellow-800">Halaman akan direfresh dalam 1 menit</p>
+                            <p class="text-xs text-yellow-700 mt-1">Untuk menjaga keamanan sesi Anda</p>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(warningDiv);
+
+                // Auto-hide warning after 5 seconds
+                setTimeout(function() {
+                    warningDiv.style.opacity = '0';
+                    warningDiv.style.transform = 'translateY(10px)';
+                    setTimeout(function() {
+                        warningDiv.remove();
+                    }, 300);
+                }, 5000);
+            }, 9 * 60 * 1000); // Show warning at 9 minutes
         });
     </script>
 </body>

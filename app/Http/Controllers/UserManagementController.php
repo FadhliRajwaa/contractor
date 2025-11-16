@@ -126,7 +126,8 @@ class UserManagementController extends Controller
             
         $roles = Role::whereIn('name', ['customer', 'user_kontraktor'])->get();
         
-        return view('users.contractor-index', compact('users', 'roles'));
+        // Reuse main user management view with scoped data
+        return view('users.index', compact('users', 'roles'));
     }
 
     /**

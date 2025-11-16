@@ -5,9 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    private const ROLE_HIERARCHY = [
+        'superadmin' => 1,
+        'administrator' => 2,
+        'admin_kontraktor' => 3,
+        'user_kontraktor' => 4,
+        'customer' => 5,
+    ];
+
     /**
      * Display the dashboard with role-based content.
      */
@@ -21,59 +31,131 @@ class DashboardController extends Controller
             'session_id' => request()->session()->getId(),
         ]);
 
-        $user = auth()->user();
-        $dashboardData = [];
+        $currentUser = auth()->user();
 
-        // SUPERADMIN: System-wide overview
-        if ($user->hasRole('superadmin')) {
-            $dashboardData = [
-                'totalUsers' => User::count(),
-                'totalRoles' => Role::count(),
-                'activeUsers' => User::where('is_active', true)->count(),
-                'recentUsers' => User::with('roles')->latest()->take(5)->get(),
-                'dashboardType' => 'superadmin'
-            ];
+        $visibleRoles = $this->getVisibleRolesForDashboard($currentUser);
+
+        $manageableRoles = $this->getManageableRolesForDashboard($currentUser);
+
+        $baseQuery = User::with('roles')
+            ->when(!empty($visibleRoles), function ($query) use ($visibleRoles) {
+                $query->whereHas('roles', function ($roleQuery) use ($visibleRoles) {
+                    $roleQuery->whereIn('name', $visibleRoles);
+                });
+            });
+
+        $totalUsers = (clone $baseQuery)->count();
+        $activeUsers = (clone $baseQuery)->where('is_active', true)->count();
+        $inactiveUsers = (clone $baseQuery)->where('is_active', false)->count();
+        $recentUsers = (clone $baseQuery)->latest()->take(5)->get();
+
+        $roleCounts = [];
+        foreach ($manageableRoles as $roleName) {
+            $roleCounts[$roleName] = (clone $baseQuery)
+                ->whereHas('roles', function ($query) use ($roleName) {
+                    $query->where('name', $roleName);
+                })
+                ->count();
         }
-        // ADMINISTRATOR: System administration
-        elseif ($user->hasRole('administrator')) {
-            $dashboardData = [
-                'totalUsers' => User::count(),
-                'activeUsers' => User::where('is_active', true)->count(),
-                'recentUsers' => User::with('roles')->latest()->take(5)->get(),
-                'dashboardType' => 'administrator'
-            ];
-        }
-        // ADMIN KONTRAKTOR: Contractor management overview
-        elseif ($user->hasRole('admin_kontraktor')) {
-            $dashboardData = [
-                'totalCustomers' => User::role('customer')->count(),
-                'totalUserKontraktor' => User::role('user_kontraktor')->count(),
-                'totalProjects' => 0, // TODO: Implement when Project model ready
-                'activeProjects' => 0, // TODO: Implement when Project model ready
-                'recentCustomers' => User::role('customer')->latest()->take(5)->get(),
-                'dashboardType' => 'admin_kontraktor'
-            ];
-        }
-        // USER KONTRAKTOR: Limited contractor view
-        elseif ($user->hasRole('user_kontraktor')) {
-            $dashboardData = [
-                'assignedProjects' => 0, // TODO: Implement when Project model ready
-                'completedProjects' => 0, // TODO: Implement when Project model ready
-                'pendingTasks' => 0, // TODO: Implement when Task model ready
-                'dashboardType' => 'user_kontraktor'
-            ];
-        }
-        // CUSTOMER: Customer view
-        elseif ($user->hasRole('customer')) {
-            $dashboardData = [
-                'myProjects' => 0, // TODO: Implement when Project model ready
-                'openTickets' => 0, // TODO: Implement when Ticket model ready
-                'projectUpdates' => [], // TODO: Implement when Project model ready
-                'dashboardType' => 'customer'
-            ];
-        }
+
+        $recentUsers = $this->enrichUsersWithLastActive($recentUsers);
+
+        $dashboardData = [
+            'totalUsers' => $totalUsers,
+            'activeUsers' => $activeUsers,
+            'inactiveUsers' => $inactiveUsers,
+            'totalRoles' => empty($visibleRoles)
+                ? 0
+                : Role::whereIn('name', $visibleRoles)->count(),
+            'recentUsers' => $recentUsers,
+            'roleCounts' => $roleCounts,
+            'dashboardType' => $currentUser?->roles->first()->name ?? null,
+        ];
 
         return view('dashboard.index', compact('dashboardData'));
+    }
+
+    /**
+     * Determine which roles are visible for dashboard statistics based on hierarchy.
+     */
+    private function getVisibleRolesForDashboard(?User $user): array
+    {
+        $currentRole = $user?->roles->first()->name ?? null;
+
+        if (!$currentRole) {
+            return [];
+        }
+
+        // Superadmin can see all roles
+        if ($currentRole === 'superadmin') {
+            return array_keys(self::ROLE_HIERARCHY);
+        }
+
+        $currentLevel = self::ROLE_HIERARCHY[$currentRole] ?? 999;
+
+        $visibleRoles = [$currentRole];
+
+        foreach (self::ROLE_HIERARCHY as $roleName => $level) {
+            if ($level > $currentLevel) {
+                $visibleRoles[] = $roleName;
+            }
+        }
+
+        return $visibleRoles;
+    }
+
+    private function getManageableRolesForDashboard(?User $user): array
+    {
+        $currentRole = $user?->roles->first()->name ?? null;
+
+        if (!$currentRole) {
+            return [];
+        }
+
+        $currentLevel = self::ROLE_HIERARCHY[$currentRole] ?? 999;
+
+        $manageableRoles = [];
+
+        if ($currentRole === 'superadmin') {
+            foreach (self::ROLE_HIERARCHY as $roleName => $level) {
+                $manageableRoles[] = $roleName;
+            }
+        } else {
+            foreach (self::ROLE_HIERARCHY as $roleName => $level) {
+                if ($level > $currentLevel) {
+                    $manageableRoles[] = $roleName;
+                }
+            }
+        }
+
+        return $manageableRoles;
+    }
+
+    /**
+     * Attach last active time to each user using sessions table.
+     */
+    private function enrichUsersWithLastActive($users)
+    {
+        $userIds = $users->pluck('id')->filter()->all();
+
+        if (empty($userIds)) {
+            return $users;
+        }
+
+        $lastActivities = DB::table('sessions')
+            ->select('user_id', DB::raw('MAX(last_activity) as last_activity'))
+            ->whereIn('user_id', $userIds)
+            ->groupBy('user_id')
+            ->pluck('last_activity', 'user_id');
+
+        $users->each(function ($user) use ($lastActivities) {
+            $lastActivity = $lastActivities[$user->id] ?? null;
+            $user->last_active_at = $lastActivity
+                ? Carbon::createFromTimestamp($lastActivity)
+                : null;
+        });
+
+        return $users;
     }
 
     /**

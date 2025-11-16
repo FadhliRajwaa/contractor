@@ -15,5 +15,10 @@ class Agency extends Model
         'email',           // Email
         'phone',           // Phone
         'pic_name',        // PIC (Personal In Charge)
+        'is_active',       // Status aktif/non-aktif
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 }

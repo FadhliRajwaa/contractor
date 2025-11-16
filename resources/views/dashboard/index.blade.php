@@ -26,7 +26,7 @@
     <nav class="flex" aria-label="Breadcrumb">
         <ol class="flex items-center space-x-2 text-sm">
             <li>
-                <span class="text-gray-500">Dashboard</span>
+                <span class="text-gray-900 font-medium">Dashboard</span>
             </li>
         </ol>
     </nav>
@@ -40,14 +40,14 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 sm:mb-8">
+    <div class="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 sm:mb-8 mt-6 sm:mt-8">
         <!-- Total Users -->
-        <div class="card hover:shadow-2xl hover:scale-105 transition-all duration-700 hover:-translate-y-3 animate-slideInUp cursor-pointer bg-gradient-to-r from-brand-50 via-brand-100 to-brand-200 border-brand-300 group overflow-hidden relative" style="animation-delay: 0.1s;" onclick="animateCard(this)">
+        <div class="card hover:shadow-2xl hover:scale-105 transition-all duration-700 animate-slideInUp cursor-pointer bg-gradient-to-r from-brand-50 via-brand-100 to-brand-200 border-brand-300 group overflow-hidden relative" style="animation-delay: 0.1s;" onclick="animateCard(this)">
             <div class="absolute inset-0 bg-gradient-to-r from-brand-500 to-brand-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
             <div class="flex items-center justify-between relative z-10">
                 <div class="transform group-hover:scale-105 transition-transform duration-500">
                     <h3 class="text-sm font-bold text-brand-600 uppercase tracking-wider">Total Users</h3>
-                    <p class="text-3xl sm:text-4xl font-black text-brand-800 mt-2 group-hover:text-brand-900 transition-colors duration-300">{{ \App\Models\User::count() }}</p>
+                    <p class="text-3xl sm:text-4xl font-black text-brand-800 mt-2 group-hover:text-brand-900 transition-colors duration-300">{{ $dashboardData['totalUsers'] ?? 0 }}</p>
                     <p class="text-xs text-brand-600 mt-1 font-semibold">Registered users in system</p>
                 </div>
                 <div class="flex-shrink-0 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl p-3 sm:p-4 shadow-2xl transform group-hover:rotate-6 group-hover:scale-110 transition-all duration-500">
@@ -60,11 +60,11 @@
         </div>
 
         <!-- Active Users -->
-        <div class="card hover:shadow-xl transition-all duration-500 hover:-translate-y-2 animate-slideInUp cursor-pointer bg-gradient-to-r from-green-50 to-green-100 border-green-200" style="animation-delay: 0.2s;">
+        <div class="card hover:shadow-xl transition-all duration-500 animate-slideInUp cursor-pointer bg-gradient-to-r from-green-50 to-green-100 border-green-200" style="animation-delay: 0.2s;">
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="text-sm font-semibold text-green-600 uppercase tracking-wide">Active Users</h3>
-                    <p class="text-3xl font-bold text-green-700 mt-2">{{ \App\Models\User::where('is_active', true)->count() }}</p>
+                    <p class="text-3xl font-bold text-green-700 mt-2">{{ $dashboardData['activeUsers'] ?? 0 }}</p>
                     <p class="text-xs text-green-500 mt-1">Currently active accounts</p>
                 </div>
                 <div class="flex-shrink-0 bg-green-500 rounded-xl p-3 shadow-lg">
@@ -76,11 +76,11 @@
         </div>
 
         <!-- Inactive Users -->
-        <div class="card hover:shadow-xl transition-all duration-500 hover:-translate-y-2 animate-slideInUp cursor-pointer bg-gradient-to-r from-red-50 to-red-100 border-red-200" style="animation-delay: 0.3s;">
+        <div class="card hover:shadow-xl transition-all duration-500 animate-slideInUp cursor-pointer bg-gradient-to-r from-red-50 to-red-100 border-red-200" style="animation-delay: 0.3s;">
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="text-sm font-semibold text-red-600 uppercase tracking-wide">Inactive Users</h3>
-                    <p class="text-3xl font-bold text-red-700 mt-2">{{ \App\Models\User::where('is_active', false)->count() }}</p>
+                    <p class="text-3xl font-bold text-red-700 mt-2">{{ $dashboardData['inactiveUsers'] ?? 0 }}</p>
                     <p class="text-xs text-red-500 mt-1">Disabled user accounts</p>
                 </div>
                 <div class="flex-shrink-0 bg-red-500 rounded-xl p-3 shadow-lg">
@@ -92,11 +92,11 @@
         </div>
 
         <!-- Total Roles -->
-        <div class="card hover:shadow-xl transition-all duration-500 hover:-translate-y-2 animate-slideInUp cursor-pointer bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200" style="animation-delay: 0.4s;">
+        <div class="card hover:shadow-xl transition-all duration-500 animate-slideInUp cursor-pointer bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200" style="animation-delay: 0.4s;">
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="text-sm font-semibold text-blue-600 uppercase tracking-wide">System Roles</h3>
-                    <p class="text-3xl font-bold text-blue-700 mt-2">{{ \Spatie\Permission\Models\Role::count() }}</p>
+                    <p class="text-3xl font-bold text-blue-700 mt-2">{{ $dashboardData['totalRoles'] ?? 0 }}</p>
                     <p class="text-xs text-blue-500 mt-1">Available user roles</p>
                 </div>
                 <div class="flex-shrink-0 bg-blue-500 rounded-xl p-3 shadow-lg">
@@ -107,6 +107,51 @@
             </div>
         </div>
     </div>
+
+    @php
+        $roleCounts = $dashboardData['roleCounts'] ?? [];
+        $roleLabels = [
+            'superadmin' => 'Superadmin',
+            'administrator' => 'Administrator',
+            'admin_kontraktor' => 'Admin Kontraktor',
+            'user_kontraktor' => 'User Kontraktor',
+            'customer' => 'Customer',
+        ];
+    @endphp
+
+    @if(!empty($roleCounts))
+        <div class="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 sm:mb-8">
+            @foreach($roleCounts as $roleName => $count)
+                @php
+                    $label = $roleLabels[$roleName] ?? ucfirst(str_replace('_', ' ', $roleName));
+
+                    $colorClasses = [
+                        'superadmin' => 'from-purple-50 to-purple-100 border-purple-200 text-purple-700',
+                        'administrator' => 'from-indigo-50 to-indigo-100 border-indigo-200 text-indigo-700',
+                        'admin_kontraktor' => 'from-orange-50 to-orange-100 border-orange-200 text-orange-700',
+                        'user_kontraktor' => 'from-teal-50 to-teal-100 border-teal-200 text-teal-700',
+                        'customer' => 'from-gray-50 to-gray-100 border-gray-200 text-gray-700',
+                    ];
+
+                    $classes = $colorClasses[$roleName] ?? 'from-gray-50 to-gray-100 border-gray-200 text-gray-700';
+                @endphp
+                <div class="card hover:shadow-xl transition-all duration-500 hover:-translate-y-2 animate-slideInUp cursor-pointer bg-gradient-to-r {{ $classes }}" style="animation-delay: 0.5s;">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold uppercase tracking-wide">{{ $label }}</h3>
+                            <p class="text-3xl font-bold mt-2">{{ $count }}</p>
+                            <p class="text-xs mt-1">Total pengguna dengan role ini</p>
+                        </div>
+                        <div class="flex-shrink-0 bg-white/80 rounded-xl p-3 shadow-lg">
+                            <svg class="h-8 w-8 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-4-4h-3M9 20H4v-2a4 4 0 014-4h3m0-6a4 4 0 11-8 0 4 4 0 018 0zm6 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
 
 
     <!-- Recent Activity & Quick Actions -->
@@ -129,7 +174,7 @@
             </div>
             <div class="space-y-3 sm:space-y-4" id="recentUsersList">
                 @php
-                    $recentUsers = \App\Models\User::latest()->take(5)->get();
+                    $recentUsers = $dashboardData['recentUsers'] ?? collect();
                 @endphp
                 @forelse($recentUsers as $user)
                     <div class="flex items-center p-3 sm:p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
@@ -141,7 +186,28 @@
                         <div class="ml-3 sm:ml-4 flex-1 min-w-0">
                             <p class="text-sm font-semibold text-gray-900 truncate">{{ $user->name }}</p>
                             <p class="text-xs text-gray-500 truncate" title="{{ $user->email }}">{{ $user->email }}</p>
-                            <p class="text-xs text-gray-400 mt-1">{{ $user->created_at->diffForHumans() }}</p>
+                            <p class="text-xs text-gray-400 mt-1 flex flex-wrap items-center gap-1">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-50 text-[10px] text-gray-600 border border-gray-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-1.5"></span>
+                                    Dibuat {{ $user->created_at ? $user->created_at->format('d/m/Y H:i') : '-' }}
+                                    @if($user->created_at)
+                                        <span class="ml-1 text-[9px] text-gray-500 relative-time-badge" data-timestamp="{{ $user->created_at->timestamp }}"></span>
+                                    @endif
+                                </span>
+
+                                @if($user->last_active_at)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-[10px] text-emerald-700 border border-emerald-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                        Terakhir aktif {{ $user->last_active_at->format('d/m/Y H:i') }}
+                                        <span class="ml-1 text-[9px] text-emerald-600 relative-time-badge" data-timestamp="{{ $user->last_active_at->timestamp }}"></span>
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-50 text-[10px] text-gray-500 border border-gray-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-300 mr-1.5"></span>
+                                        Belum pernah aktif
+                                    </span>
+                                @endif
+                            </p>
                         </div>
                         <div class="flex flex-col items-end space-y-2">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
@@ -176,7 +242,7 @@
                 <h3 class="text-lg sm:text-xl font-bold text-gray-900">Quick Actions</h3>
             </div>
             <div class="space-y-3 sm:space-y-4">
-                @hasanyrole('superadmin|superadministrator|administrator')
+                @hasanyrole('superadmin|superadministrator|administrator|admin_kontraktor')
                     <button onclick="openCreateUserModal()" class="w-full flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl hover:from-brand-600 hover:to-brand-700 transition-all duration-300 shadow-lg hover:shadow-xl group" type="button">
                         <svg class="h-5 w-5 mr-3 transition-transform duration-300 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -613,6 +679,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Additional event listeners sebagai backup untuk memastikan buttons bekerja
     setupButtonEventListeners();
+
+    // Initialize relative time badges on dashboard
+    initRelativeTimeBadges();
 });
 
 // Setup event listeners sebagai backup HANYA jika onclick tidak ada
@@ -676,6 +745,45 @@ window.testQuickActions = function() {
     console.log('=== TEST COMPLETED ===');
     return 'Quick Actions test completed. Check console for details.';
 };
+
+// ==== Relative Time Utilities for Dashboard ====
+function initRelativeTimeBadges() {
+    function updateAllRelativeTimes() {
+        const badges = document.querySelectorAll('.relative-time-badge[data-timestamp]');
+        const now = Date.now();
+
+        badges.forEach(badge => {
+            const ts = parseInt(badge.getAttribute('data-timestamp'), 10) * 1000;
+            if (!ts) return;
+
+            const diffMs = now - ts;
+            const diffSec = Math.floor(diffMs / 1000);
+            const diffMin = Math.floor(diffSec / 60);
+            const diffHour = Math.floor(diffMin / 60);
+            const diffDay = Math.floor(diffHour / 24);
+
+            let label = '';
+
+            if (diffSec < 60) {
+                label = '· baru saja';
+            } else if (diffMin < 60) {
+                label = `· ${diffMin} menit lalu`;
+            } else if (diffHour < 24) {
+                label = `· ${diffHour} jam lalu`;
+            } else {
+                label = `· ${diffDay} hari lalu`;
+            }
+
+            badge.textContent = label;
+        });
+    }
+
+    // Initial update
+    updateAllRelativeTimes();
+
+    // Refresh every 60 seconds to feel real-time
+    setInterval(updateAllRelativeTimes, 60000);
+}
 
 // Manual test functions
 window.testRefreshDashboard = function() {

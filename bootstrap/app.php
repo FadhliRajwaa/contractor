@@ -21,7 +21,12 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Handle CSRF Token Mismatch (419 Error)
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            return redirect()->route('login')
+                ->with('error', '⚠️ Sesi login Anda telah berakhir. Silakan login kembali.')
+                ->with('info', 'Untuk keamanan, halaman login akan otomatis direfresh setelah 10 menit.');
+        });
     })->create();
 
 // Clean bootstrap - providers are now explicit in bootstrap/providers.php

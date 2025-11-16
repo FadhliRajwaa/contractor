@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 class AgencyController extends Controller
 {
     /**
-     * List semua agency (hanya untuk admin_kontraktor).
+     * List semua agency (untuk role yang punya permission view agencies).
      */
     public function index()
     {
-        // Gate by permission/role
-        if (!auth()->user()->hasRole('admin_kontraktor')) {
+        // Gate by permission so superadmin, administrator, dan admin_kontraktor bisa akses
+        if (!auth()->user()->can('view agencies')) {
             abort(403, 'Unauthorized');
         }
 
@@ -84,5 +84,26 @@ class AgencyController extends Controller
         return redirect()
             ->route('agencies.index')
             ->with('success', '🗑️ Agency berhasil dihapus.');
+    }
+
+    public function toggleStatus(Agency $agency)
+    {
+        try {
+            $agency->is_active = !$agency->is_active;
+            $agency->save();
+
+            $status = $agency->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
+            return response()->json([
+                'success' => true,
+                'message' => "Agency berhasil {$status}.",
+                'is_active' => $agency->is_active
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengubah status agency.'
+            ], 500);
+        }
     }
 }
