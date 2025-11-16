@@ -25,6 +25,7 @@ class User extends Authenticatable
         'avatar',
         'notes',
         'is_active',
+        'agency_id',
     ];
 
     /**
@@ -62,5 +63,13 @@ class User extends Authenticatable
         
         // Default avatar using UI Avatars
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=CD2C58&background=FFE6D4';
+    }
+
+    /**
+     * Get the agency that owns the user
+     */
+    public function agency()
+    {
+        return $this->belongsTo(Agency::class);
     }
 }
