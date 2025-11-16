@@ -43,7 +43,35 @@ class Agency extends Model
     }
 
     /**
-     * Check if agency can add more users
+     * Get current admin_kontraktor count for this agency
+     */
+    public function getAdminKontraktorCount()
+    {
+        return $this->users()
+            ->whereHas('roles', function ($query) {
+                $query->where('name', 'admin_kontraktor');
+            })
+            ->count();
+    }
+
+    /**
+     * Check if agency can add more admin_kontraktor users (max 5)
+     */
+    public function canAddAdminKontraktor()
+    {
+        return $this->getAdminKontraktorCount() < 5;
+    }
+
+    /**
+     * Get remaining admin_kontraktor slots
+     */
+    public function getRemainingAdminKontraktorSlots()
+    {
+        return max(0, 5 - $this->getAdminKontraktorCount());
+    }
+
+    /**
+     * Check if agency can add more users (general - for tier system if needed)
      */
     public function canAddUser()
     {
@@ -51,7 +79,7 @@ class Agency extends Model
     }
 
     /**
-     * Get remaining user slots
+     * Get remaining user slots (general - for tier system if needed)
      */
     public function getRemainingSlots()
     {

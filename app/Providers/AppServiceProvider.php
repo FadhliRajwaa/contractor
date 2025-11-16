@@ -22,15 +22,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Gate: Check if agency can add more users based on tier
-        Gate::define('agency-can-add-user', function (User $user, Agency $agency) {
-            // Only tier 3-5 can have users
-            if ($agency->tier < 3 || $agency->tier > 5) {
-                return false;
-            }
+        // Gate: Check if agency can add more admin_kontraktor users (max 5)
+        Gate::define('agency-can-add-admin-kontraktor', function (User $user, Agency $agency) {
+            // Count current admin_kontraktor users in this agency
+            $adminKontraktorCount = $agency->users()
+                ->whereHas('roles', function ($query) {
+                    $query->where('name', 'admin_kontraktor');
+                })
+                ->count();
 
-            // Check if agency has reached max users
-            return $agency->canAddUser();
+            // Max 5 admin_kontraktor per agency
+            return $adminKontraktorCount < 5;
         });
 
         // Gate: Check if user can be assigned to agency
