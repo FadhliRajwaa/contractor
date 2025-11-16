@@ -282,7 +282,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-100">
                     @forelse($users as $user)
-                        <tr class="hover:bg-gradient-to-r hover:from-brand-50 hover:to-gray-50 transition-all duration-300 transform hover:scale-[1.01] hover:shadow-sm border-l-4 border-transparent hover:border-brand-400">
+                        <tr class="hover:bg-gradient-to-r hover:from-brand-50 hover:to-gray-50 transition-colors duration-200 border-l-4 border-transparent hover:border-brand-400">
                             <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <img 
