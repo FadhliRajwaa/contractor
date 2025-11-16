@@ -17,7 +17,7 @@ class AgencyController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $agencies = Agency::orderByDesc('created_at')->paginate(10);
+        $agencies = Agency::orderBy('created_at', 'asc')->paginate(10);
 
         return view('agencies.index', compact('agencies'));
     }
