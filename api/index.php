@@ -32,15 +32,7 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
-// Set environment variables BEFORE Laravel bootstraps
-// These will override any .env file settings
-$_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
-$_ENV['CACHE_DRIVER'] = 'array';
-$_ENV['SESSION_DRIVER'] = 'cookie';
-$_ENV['LOG_CHANNEL'] = 'stderr';
-$_ENV['APP_STORAGE'] = '/tmp/storage';
-
-// Create required tmp directories
+// Create required tmp directories FIRST
 $dirs = [
     '/tmp/storage/framework/cache/data',
     '/tmp/storage/framework/sessions',
@@ -56,12 +48,39 @@ foreach ($dirs as $dir) {
     }
 }
 
-// Create minimal .env file to prevent Dotenv from failing
-// Actual values come from Vercel Environment Variables
-$envFile = __DIR__ . '/../.env';
+// Create minimal .env file in /tmp (writable area)
+$envFile = '/tmp/.env';
 if (!file_exists($envFile)) {
-    file_put_contents($envFile, "# Environment variables are managed by Vercel\n# See Settings > Environment Variables\n");
+    file_put_contents($envFile, "# Managed by Vercel\n");
 }
 
-// Boot Laravel using standard Laravel bootstrap
-require __DIR__ . '/../public/index.php';
+// Copy .env to writable location if needed
+$sourceEnv = __DIR__ . '/../.env';
+if (file_exists($sourceEnv) && !file_exists($envFile)) {
+    @copy($sourceEnv, $envFile);
+}
+
+// Override specific paths for serverless
+$_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
+$_ENV['CACHE_DRIVER'] = 'array';
+$_ENV['SESSION_DRIVER'] = 'cookie';
+$_ENV['LOG_CHANNEL'] = 'stderr';
+$_ENV['APP_STORAGE'] = '/tmp/storage';
+
+// Custom Laravel bootstrap for Vercel serverless
+use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
+
+define('LARAVEL_START', microtime(true));
+
+// Register the Composer autoloader
+require __DIR__ . '/../vendor/autoload.php';
+
+// Bootstrap Laravel with custom environment file location
+$app = require_once __DIR__ . '/../bootstrap/app.php';
+
+// Override useEnvironmentPath to /tmp BEFORE loading environment
+$app->useEnvironmentPath('/tmp');
+
+// Handle the request
+$app->handleRequest(Request::capture());
