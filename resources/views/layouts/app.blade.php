@@ -183,7 +183,7 @@
         </div>
 
         <!-- Mobile Sidebar -->
-        <div id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden">
+        <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden">
             <div class="flex flex-col h-full">
                 <!-- Logo -->
                 <div class="flex items-center justify-between h-16 px-6 bg-gradient-to-br from-brand-500 via-brand-600 to-brand-700 relative overflow-hidden flex-shrink-0">
@@ -448,7 +448,7 @@
         <!-- Mobile Sidebar Overlay -->
         <div 
             id="sidebar-overlay"
-            class="sidebar-backdrop z-30 lg:hidden hidden"
+            class="sidebar-backdrop z-40 lg:hidden hidden"
         ></div>
 
         <!-- Main Content -->
