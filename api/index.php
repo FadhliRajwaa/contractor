@@ -33,6 +33,7 @@ ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
 // Set environment variables BEFORE Laravel bootstraps
+// These will override any .env file settings
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
 $_ENV['CACHE_DRIVER'] = 'array';
 $_ENV['SESSION_DRIVER'] = 'cookie';
@@ -55,9 +56,12 @@ foreach ($dirs as $dir) {
     }
 }
 
-// .env file is created during build from .env.vercel (see vercel.json buildCommand)
-// This ensures .env exists in read-only filesystem
-// Actual environment values come from Vercel Environment Variables Dashboard
+// Create minimal .env file to prevent Dotenv from failing
+// Actual values come from Vercel Environment Variables
+$envFile = __DIR__ . '/../.env';
+if (!file_exists($envFile)) {
+    file_put_contents($envFile, "# Environment variables are managed by Vercel\n# See Settings > Environment Variables\n");
+}
 
 // Boot Laravel using standard Laravel bootstrap
 require __DIR__ . '/../public/index.php';
