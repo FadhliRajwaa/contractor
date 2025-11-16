@@ -239,7 +239,21 @@
                                 <div class="ml-auto w-2 h-2 bg-brand-500 rounded-full animate-pulse"></div>
                             @endif
                         </a>
-                        @endhasanyrole
+                        @endcan
+
+                        @can('view agencies')
+                        <a href="{{ route('agencies.index') }}" class="group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-105 {{ request()->routeIs('agencies.*') ? 'bg-gradient-to-r from-brand-50 to-brand-100 text-brand-700 shadow-md border-l-4 border-brand-500' : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:shadow-sm' }}">
+                            <div class="flex items-center justify-center w-8 h-8 mr-3 rounded-lg {{ request()->routeIs('agencies.*') ? 'bg-brand-500 text-white' : 'bg-gray-100 text-gray-600 group-hover:bg-brand-100 group-hover:text-brand-600' }} transition-all duration-300">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <span class="font-semibold">Agencies</span>
+                            @if(request()->routeIs('agencies.*'))
+                                <div class="ml-auto w-2 h-2 bg-brand-500 rounded-full animate-pulse"></div>
+                            @endif
+                        </a>
+                        @endcan
                     </div>
                 </nav>
                 
