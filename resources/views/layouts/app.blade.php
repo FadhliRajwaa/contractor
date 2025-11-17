@@ -202,12 +202,13 @@
                     </div>
                     <!-- Close Button for Mobile -->
                     <button 
+                        type="button"
                         onclick="toggleSidebar()" 
-                        class="relative z-10 lg:hidden text-white hover:bg-white/20 rounded-lg p-1.5 transition-colors duration-200 flex-shrink-0"
+                        class="relative z-10 lg:hidden text-white hover:bg-white/20 rounded-lg p-2 transition-colors duration-200 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
                         aria-label="Close sidebar"
                     >
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
@@ -611,6 +612,20 @@
 
     <!-- Mobile Sidebar Toggle Script -->
     <script>
+        // Global function for sidebar toggle (used by close button)
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            if (sidebar && overlay) {
+                sidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            }
+        }
+        
+        // Make function globally accessible
+        window.toggleSidebar = toggleSidebar;
+        
         // Alpine.js alternative using vanilla JS
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -626,6 +641,17 @@
 
             if (overlay) {
                 overlay.addEventListener('click', function() {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                });
+            }
+
+            // Close button in sidebar (backup for onclick)
+            const sidebarCloseBtn = sidebar?.querySelector('button[onclick*="toggleSidebar"]');
+            if (sidebarCloseBtn) {
+                sidebarCloseBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     sidebar.classList.add('-translate-x-full');
                     overlay.classList.add('hidden');
                 });
